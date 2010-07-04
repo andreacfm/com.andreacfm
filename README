@@ -1,0 +1,6 @@
+#############################
+v. 1.0 
+############################
+1) Datax does not support orm. 
+2) Datax does not support external caching just provides CacheKey hooks.
+
