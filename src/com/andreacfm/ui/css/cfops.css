@@ -1,0 +1,40 @@
+/*
+ * @ box css base class  
+ */
+
+/* general styles */
+.ac_box{
+	border:1px dotted #000000;
+	margin:10px 0;
+}
+.ac_box div.hd{
+	padding-left:60px;
+	height:33px;
+	text-align:left;
+	padding-top:10px;
+	font-size:18px;
+	font-weight:bold;
+}
+.ac_box div.bd{
+	padding:5px;
+	min-height:20px;
+	text-align:left;
+}
+.ac_box div.ft{
+	padding:5px;
+	text-align:left;}
+
+/* icons */
+.ac_box_warning div.hd{
+	background:transparent url(images/icon-warning.gif) no-repeat 10px 5px;
+}
+.ac_box_info div.hd{
+	background:transparent url(images/icon-info.gif) no-repeat 10px 5px;
+}
+.ac_box_error div.hd{
+	background:transparent url(images/icon-error.gif) no-repeat 10px 5px;
+}
+.ac_box_question div.hd{
+	background:transparent url(images/icon-question.gif) no-repeat 10px 5px;
+}
+
