@@ -161,6 +161,7 @@
 			<cfset arguments.args.fieldlist = fields />
 		</cfif>
 		
+		<!--- change page to maxrows and offset parameters --->
 		<cfif arguments.page gt 0 and arguments.perPage gt 0>
 			<cfset arguments.maxrows = arguments.perPage>
 			<cfset arguments.offset = arguments.perPage * (arguments.page - 1)>

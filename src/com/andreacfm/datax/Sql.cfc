@@ -84,7 +84,7 @@
 		<cfargument name="cacheKey" type="com.andreacfm.datax.CacheKey" required="true"/>
 		<cfset var d = arrayNew(1) />
 		<cfif isCaching() and cacheKey.askSqlKey()>
-			<cfset d = [getmethod(),getTable(),getSortedData(d),getfilters(),getfieldlist(),getadvsql(),getorderBy()] />
+			<cfset d = [getmethod(),getTable(),getSortedData(d),getfilters(),getfieldlist(),getadvsql(),getorderBy(),getmaxRows(),getoffset()] />
 			<cfset cacheKey.setData(d) />
 		</cfif>
 		<cfset variables.instance.cacheKey = cacheKey />
