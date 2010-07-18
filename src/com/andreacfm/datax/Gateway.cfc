@@ -160,7 +160,15 @@
 					<cfset arguments.sql.setOrderBy(getdefaultOrderBy())>
 				</cfif>
 							
-				<cfset qRead = dataMgr.getRecords(gettable(),arguments.sql.getdata(),arguments.sql.getOrderBy(),arguments.sql.getMaxrows(),arguments.sql.getfieldlist(),arguments.sql.getAdvSql(),arguments.sql.getFilters())/>
+				<cfset qRead = dataMgr.getRecords(
+						table = gettable(),
+						data = arguments.sql.getdata(),
+						orderby = arguments.sql.getOrderBy(),
+						maxrows = arguments.sql.getMaxrows(),
+						fieldlist = arguments.sql.getfieldlist(),
+						advsql = arguments.sql.getAdvSql(),
+						filters = arguments.sql.getFilters(),
+						offset = arguments.sql.getOffset())/>
 			
 				<cfset arguments.sql.setQuery(qRead) />
 
