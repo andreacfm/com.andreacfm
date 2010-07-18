@@ -50,7 +50,7 @@
 				</cfif>
 			
 				<cfcatch type="any">
-				 	<!--- <cfset onError(bean,duplicate(cfcatch)) /> --->
+				 	<cfset onError(bean,cfcatch) />
 					<cfthrow type="com.andreacfm.datax.createRecordExeption" message="#cfcatch.message#" />						
 				</cfcatch>
 
@@ -77,7 +77,7 @@
 				<cfset afterDelete(bean) />
 				
 	   			<cfcatch type="any">
-				 	<!--- <cfset onError(bean,duplicate(cfcatch)) /> --->
+				 	<cfset onError(bean,cfcatch) />
 					<cfthrow type="com.andreacfm.datax.deleteRecordExeption" message="#cfcatch.message#" />						
 				</cfcatch>
 			
@@ -121,7 +121,7 @@
 			</cfif>
 			
 			 <cfcatch type="any">
-			 	<!--- <cfset onError(bean,duplicate(cfcatch)) /> --->
+			 	<cfset onError(bean,cfcatch) />
 				<cfthrow type="com.andreacfm.datax.updateRecordExeption" message="#cfcatch.message#" />			
 			</cfcatch>
 		

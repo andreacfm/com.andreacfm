@@ -10,6 +10,8 @@
 	<cfproperty name="filters" type="array" />
 	<cfproperty name="advsql" type="struct" />
 	<cfproperty name="alive" type="boolean" />
+	<cfproperty name="offset" type="numeric">
+	
 
 	<cfset variables.instance.alive = true />	
 	<cfset variables.instance.query = queryNew('x')/>
@@ -64,7 +66,6 @@
 		<cfargument name="query" type="Query" required="true"/>
 		<cfset variables.instance.query = query />
 	</cffunction> 
-
 	<cffunction name="getquery" access="public" returntype="Query">
 		<cfreturn variables.instance.query/>
 	</cffunction>	
@@ -74,7 +75,6 @@
 		<cfargument name="objectsRecordset" type="Array" required="true"/>
 		<cfset variables.instance.objectsRecordset = objectsRecordset />
 	</cffunction> 
-
 	<cffunction name="getobjectsRecordset" access="public" returntype="Array">
 		<cfreturn variables.instance.objectsRecordset/>
 	</cffunction>
@@ -183,4 +183,12 @@
 		<cfreturn variables.instance.table/>
 	</cffunction>
 
+	<!--- offset--->
+	<cffunction name="setoffset" access="public" returntype="void">
+		<cfargument name="offset" type="Numeric" required="true"/>
+		<cfset variables.instance.offset = offset />
+	</cffunction> 
+	<cffunction name="getoffset" access="public" returntype="Numeric">
+		<cfreturn variables.instance.offset/>
+	</cffunction>
 </cfcomponent>

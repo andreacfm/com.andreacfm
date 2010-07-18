@@ -31,6 +31,9 @@
 		<cfargument name="skipFields" required="false" type="string" default=""/>
 		<cfargument name="pop" required="false" type="boolean" default="false"/>
 		<cfargument name="cache" required="false" type="boolean" default="false"/>
+		<cfargument name="page" required="false" type="numeric" default="0"/>
+		<cfargument name="perPage" required="false" type="numeric" default="0"/>
+
 		<!--- read method --->		
 		<cfargument name="method" required="false" type="string" default="read"/>		
 
@@ -53,7 +56,10 @@
 		<cfargument name="advSql" required="false"  type="struct" default="#structNew()#"/>
 		<cfargument name="filters" required="false" type="array" default="#arrayNew(1)#"/>
 		<cfargument name="skipFields" required="false" type="string" default=""/>
-		<cfargument name="cache" required="false" type="boolean" default="false"/>		
+		<cfargument name="cache" required="false" type="boolean" default="false"/>
+		<cfargument name="page" required="false" type="numeric" default="0"/>
+		<cfargument name="perPage" required="false" type="numeric" default="0"/>
+						
 		<!--- read method --->		
 		<cfargument name="method" required="false" type="string" default="list"/>		
 
@@ -66,8 +72,11 @@
 	<!---	getCount	--->
 	<cffunction name="getCount" output="false" returntype="numeric">
 		<cfscript>
-			var result = list();		
-			return result.recordcount;
+			var gateway = getgateway();
+			var table = gateway.getTable();
+			var sql = "select count(*) as count from #table#";
+			var result = gateway.getDataMgr().runsql(sql);		
+			return result.count;
 		</cfscript>
 	</cffunction>
 
@@ -150,6 +159,11 @@
 				</cfif>	
 			</cfloop>
 			<cfset arguments.args.fieldlist = fields />
+		</cfif>
+		
+		<cfif arguments.page gt 0 and arguments.perPage gt 0>
+			<cfset arguments.maxrows = arguments.perPage>
+			<cfset arguments.offset = arguments.perPage * (arguments.page - 1)>
 		</cfif>
 
 		<cfset sql = getSql(argumentCollection=arguments) />
