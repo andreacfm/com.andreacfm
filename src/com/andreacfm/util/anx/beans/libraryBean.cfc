@@ -40,44 +40,44 @@
 <!---lLibraryId--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getlLibraryId" access="public" output="false" returntype="numeric">
-		<cfreturn variables.instance.lLibraryId/>
+		<cfreturn variables.lLibraryId/>
 	</cffunction>
 	<cffunction name="setlLibraryId" access="public" output="false" returntype="void">
 		<cfargument name="lLibraryId" type="numeric" required="true"/>
-		<cfset variables.instance.lLibraryId = arguments.lLibraryId/>
+		<cfset variables.lLibraryId = arguments.lLibraryId/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---lLibrary--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getlLibrary" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.lLibrary/>
+		<cfreturn variables.lLibrary/>
 	</cffunction>
 	<cffunction name="setlLibrary" access="public" output="false" returntype="void">
 		<cfargument name="lLibrary" type="string" required="true"/>
-		<cfset variables.instance.lLibrary = arguments.lLibrary/>
+		<cfset variables.lLibrary = arguments.lLibrary/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---lDescription--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getlDescription" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.lDescription/>
+		<cfreturn variables.lDescription/>
 	</cffunction>
 	<cffunction name="setlDescription" access="public" output="false" returntype="void">
 		<cfargument name="lDescription" type="string" required="true"/>
-		<cfset variables.instance.lDescription = arguments.lDescription/>
+		<cfset variables.lDescription = arguments.lDescription/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---lType--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getlType" access="public" output="false" returntype="numeric">
-		<cfreturn variables.instance.lType/>
+		<cfreturn variables.lType/>
 	</cffunction>
 	<cffunction name="setlType" access="public" output="false" returntype="void">
 		<cfargument name="lType" type="numeric" required="true"/>
-		<cfset variables.instance.lType = arguments.lType/>
+		<cfset variables.lType = arguments.lType/>
 		<!--- set the folder type ( img or ass ) after that lType has been setted --->
 		<cfset setFolder() />
 	</cffunction>
@@ -86,24 +86,24 @@
 <!---lStatus--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getlStatus" access="public" output="false" returntype="numeric">
-		<cfreturn variables.instance.lStatus/>
+		<cfreturn variables.lStatus/>
 	</cffunction>
 	<cffunction name="setlStatus" access="public" output="false" returntype="void">
 		<cfargument name="lStatus" type="numeric" required="true"/>
-		<cfset variables.instance.lStatus = arguments.lStatus/>
+		<cfset variables.lStatus = arguments.lStatus/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---Folder--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getFolder" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.Folder/>
+		<cfreturn variables.Folder/>
 	</cffunction>
 	<cffunction name="setFolder" access="public" output="false" returntype="void">
 		<cfif getlType() eq 1>
-			<cfset variables.instance.Folder = 'img'/>
+			<cfset variables.Folder = 'img'/>
 		<cfelse>	
-			<cfset variables.instance.Folder = 'ass'/>
+			<cfset variables.Folder = 'ass'/>
 		</cfif>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->

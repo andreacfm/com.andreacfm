@@ -15,9 +15,9 @@
 		<cfargument name="testmode" required="false" type="boolean" default="false" />
 		
 		<cfscript>		
-		variables.instance.FilePath = arguments.filePath;
-		variables.instance.id = arguments.id;
-		variables.instance.fileObj = createObject('java','java.io.File').init(getFilePath());
+		variables.FilePath = arguments.filePath;
+		variables.id = arguments.id;
+		variables.fileObj = createObject('java','java.io.File').init(getFilePath());
 		setmaxSize(arguments.maxSize);
 		setSchema(arguments.schema);
 		setMailer(arguments.mailer);
@@ -190,53 +190,53 @@
 
 	<!--- id--->
 	<cffunction name="getid" access="public" returntype="String">
-		<cfreturn variables.instance.id/>
+		<cfreturn variables.id/>
 	</cffunction>
 	
 	<!---schema--->
 	<cffunction name="getschema" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.schema/>
+		<cfreturn variables.schema/>
 	</cffunction>
 	<cffunction name="setschema" access="private" output="false" returntype="void">
 		<cfargument name="schema" type="string" required="true"/>
 		<cfset arguments.schema = listAppend(arguments.schema,'ts') />
-		<cfset variables.instance.schema = arguments.schema/>
+		<cfset variables.schema = arguments.schema/>
 	</cffunction>
 
 	<!---mailer--->
 	<cffunction name="getmailer" access="public" output="false" returntype="any">
-		<cfreturn variables.instance.mailer/>
+		<cfreturn variables.mailer/>
 	</cffunction>
 	<cffunction name="setmailer" access="private" output="false" returntype="void">
 		<cfargument name="mailer" type="any" required="true"/>
-		<cfset variables.instance.mailer = arguments.mailer/>
+		<cfset variables.mailer = arguments.mailer/>
 	</cffunction>
 
 	<!---charset--->
 	<cffunction name="getcharset" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.charset/>
+		<cfreturn variables.charset/>
 	</cffunction>
 	<cffunction name="setcharset" access="private" output="false" returntype="void">
 		<cfargument name="charset" type="string" required="true"/>
-		<cfset variables.instance.charset = arguments.charset/>
+		<cfset variables.charset = arguments.charset/>
 	</cffunction>
 
 	<!--- maxSize--->
 	<cffunction name="setmaxSize" access="public" returntype="void">
 		<cfargument name="maxSize" type="Numeric" required="true"/>
-		<cfset variables.instance.maxSize = maxSize />
+		<cfset variables.maxSize = maxSize />
 	</cffunction> 
 	<cffunction name="getmaxSize" access="public" returntype="Numeric">
-		<cfreturn variables.instance.maxSize/>
+		<cfreturn variables.maxSize/>
 	</cffunction>
 	
     <!--- testMode--->
     <cffunction name="settestMode" access="public" returntype="void">
 		<cfargument name="testMode" type="Boolean" required="true"/>
-		<cfset variables.instance.testMode = testMode />
+		<cfset variables.testMode = testMode />
 	</cffunction> 
 	<cffunction name="isTestMode" access="public" returntype="Boolean">
-		<cfreturn variables.instance.testMode/>
+		<cfreturn variables.testMode/>
 	</cffunction>
 
 
@@ -269,7 +269,7 @@
 		<cfset var exists = true>	
 		<cfset var count = 0>
 		<cfset var abPath = getFilePath() />
-		<cfset var fileName = variables.instance.fileObj.getName() />
+		<cfset var fileName = variables.fileObj.getName() />
 		<cfset var extension = 'zip' />	
 		<cfset var zipName = replace(fileName,'.log','') />	
 		<cfset var tempName = zipName />		
@@ -290,13 +290,13 @@
 	
 	<!--- getSize --->
 	<cffunction name="getSize" output="false" returntype="date">	
-		<cfreturn variables.instance.fileObj.length() />
+		<cfreturn variables.fileObj.length() />
 	</cffunction>
 
 	<!---getFilePath--->
 	<cffunction name="getFilePath" output="false" returntype="string">
 		<cfscript>
-			var path = expandPath(variables.instance.FilePath);
+			var path = expandPath(variables.FilePath);
 			return path;
 		</cfscript>
 	</cffunction>

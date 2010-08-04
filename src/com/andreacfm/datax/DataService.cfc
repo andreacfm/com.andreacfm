@@ -8,7 +8,7 @@
 	<cffunction name="init" description="initialize the object settings struct" output="false" returntype="com.andreacfm.datax.DataService">	
 		<cfargument name="gateway" required="true" type="com.andreacfm.datax.Gateway" />
 
-		<cfset variables.instance.gateway = arguments.gateway />
+		<cfset variables.gateway = arguments.gateway />
 
 	<cfreturn this/>	
 	</cffunction>
@@ -17,7 +17,7 @@
 
 	<!---	gateway	--->
 	<cffunction name="getgateway" access="public" output="false" returntype="com.andreacfm.datax.Gateway">
-		<cfreturn variables.instance.gateway/>
+		<cfreturn variables.gateway/>
 	</cffunction>
 
 	<!---	read	--->

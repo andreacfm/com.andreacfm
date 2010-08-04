@@ -10,15 +10,15 @@
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr" />
 		<cfargument name="EventManager" required="true" type="EventManager.EventManager" />	
 			
-			<cfset variables.instance.id = arguments.dataSettingsBean.getId() />
-			<cfset variables.instance.table = arguments.dataSettingsBean.getTable() />
-			<cfset variables.instance.pk = arguments.dataSettingsBean.getPk() />
-			<cfset variables.instance.skipFields = arguments.dataSettingsBean.getskipFields() />
-			<cfset variables.instance.beanClass = arguments.dataSettingsBean.getbeanClass() />
-			<cfset variables.instance.defaultOrderBy = arguments.dataSettingsBean.getdefaultOrderBy() />
-			<cfset variables.instance.dbFactory = arguments.dbFactory />
-			<cfset variables.instance.dataMgr = arguments.dataMgr />
-			<cfset variables.instance.EventManager = arguments.EventManager />			
+			<cfset variables.id = arguments.dataSettingsBean.getId() />
+			<cfset variables.table = arguments.dataSettingsBean.getTable() />
+			<cfset variables.pk = arguments.dataSettingsBean.getPk() />
+			<cfset variables.skipFields = arguments.dataSettingsBean.getskipFields() />
+			<cfset variables.beanClass = arguments.dataSettingsBean.getbeanClass() />
+			<cfset variables.defaultOrderBy = arguments.dataSettingsBean.getdefaultOrderBy() />
+			<cfset variables.dbFactory = arguments.dbFactory />
+			<cfset variables.dataMgr = arguments.dataMgr />
+			<cfset variables.EventManager = arguments.EventManager />			
 			
 		<cfreturn this/>		
 	</cffunction>
@@ -72,47 +72,47 @@
 
 	<!---id--->
 	<cffunction name="getid" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.id/>
+		<cfreturn variables.id/>
 	</cffunction>
 
 	<!---table--->
 	<cffunction name="gettable" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.table/>
+		<cfreturn variables.table/>
 	</cffunction>
 
 	<!---pk--->
 	<cffunction name="getpk" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.pk/>
+		<cfreturn variables.pk/>
 	</cffunction>
 
 	<!---skipFields--->
 	<cffunction name="getskipFields" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.skipFields/>
+		<cfreturn variables.skipFields/>
 	</cffunction>
 
 	<!---beanClass--->
 	<cffunction name="getbeanClass" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.beanClass/>
+		<cfreturn variables.beanClass/>
 	</cffunction>
 
 	<!---deafultOrderBy--->
 	<cffunction name="getdefaultOrderBy" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.defaultOrderBy/>
+		<cfreturn variables.defaultOrderBy/>
 	</cffunction>
 
 	<!---dbFactory--->
 	<cffunction name="getdbFactory" access="public" output="false" returntype="com.andreacfm.datax.dbfactory">
-		<cfreturn variables.instance.dbfactory/>
+		<cfreturn variables.dbfactory/>
 	</cffunction>
 
 	<!---dataMgr instance--->
 	<cffunction name="getdataMgr" access="public" output="false" returntype="com.andreacfm.datax.dataMgr.dataMgr">
-		<cfreturn variables.instance.dataMgr />
+		<cfreturn variables.dataMgr />
 	</cffunction>
 
 	<!--- Event Manager--->
 	<cffunction name="getEventManager" access="public" returntype="EventManager.EventManager">
-		<cfreturn variables.instance.EventManager/>
+		<cfreturn variables.EventManager/>
 	</cffunction>
 
 

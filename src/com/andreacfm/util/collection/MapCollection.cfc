@@ -38,11 +38,11 @@
     
     <cffunction name="containsKey" access="public" returntype="any">
         <cfargument name="key" type="string" required="true" />
-        <cfreturn variables.instance.containsKey( arguments.key ) />
+        <cfreturn variables.containsKey( arguments.key ) />
     </cffunction>
     
     <cffunction name="keySet" access="public" returntype="any">
-        <cfreturn variables.instance.keySet() />
+        <cfreturn variables.keySet() />
     </cffunction>
 
 </cfcomponent>

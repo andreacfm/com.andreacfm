@@ -5,14 +5,14 @@
 
 	<cfproperty name="fileRoot" type="string"/>
 
-	<cfset variables.instance.fileRoot = "/" />
+	<cfset variables.fileRoot = "/" />
 	
 <!---init--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="init" output="false" returntype="com.andreacfm.core.object">
 		<cfargument name="fileRoot" type="string" required="false" default="/" />
 
-		<cfset variables.instance.fileRoot = fileRoot />	
+		<cfset variables.fileRoot = fileRoot />	
 
 		<cfreturn this />
 	</cffunction>
@@ -72,11 +72,11 @@
 <!---fileRoot--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getfileRoot" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.fileRoot/>
+		<cfreturn variables.fileRoot/>
 	</cffunction>
 	<cffunction name="setfileRoot" access="public" output="false" returntype="void">
 		<cfargument name="fileRoot" type="string" required="true"/>
-		<cfset variables.instance.fileRoot = arguments.fileRoot/>
+		<cfset variables.fileRoot = arguments.fileRoot/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 	

@@ -32,26 +32,26 @@
     
     <cffunction name="remove" access="public" returntype="boolean">
         <cfargument name="i" type="any" required="true" />
-        <cfreturn variables.instance.remove(arguments.i) />
+        <cfreturn variables.remove(arguments.i) />
     </cffunction>
     
     <cffunction name="clear" access="public" returntype="void">
-        <cfreturn variables.instance.clear() />
+        <cfreturn variables.clear() />
     </cffunction>
     
     <cffunction name="contains" access="public" returntype="boolean">
         <cfargument name="value" type="Any" required="true" />
 
 		<cfif structKeyExists(server,'railo')>
-			<cfreturn variables.instance.containsKey( arguments.value ) />
+			<cfreturn variables.containsKey( arguments.value ) />
 		</cfif>	
 
-        <cfreturn variables.instance.contains( arguments.value ) />
+        <cfreturn variables.contains( arguments.value ) />
 
     </cffunction>
     
     <cffunction name="isEmpty" access="public" returntype="boolean">
-        <cfreturn variables.instance.isEmpty() />
+        <cfreturn variables.isEmpty() />
     </cffunction>
     
     <cffunction name="iterator" access="public" returntype="Any">
@@ -59,17 +59,17 @@
         
 		<cfif structKeyExists(server,'railo')>
 		
-			<cfreturn variables.instance.Iterator() />
+			<cfreturn variables.Iterator() />
 		
 		</cfif>	
         
 		<cfif isStruct( variables.instance )>
             
-			<cfset iterator = variables.instance.valuesIterator()/>
+			<cfset iterator = variables.valuesIterator()/>
         
         <cfelseif isArray( variables.instance )>
         
-            <cfset iterator = variables.instance.listIterator()/>
+            <cfset iterator = variables.listIterator()/>
         
         </cfif>
         
@@ -77,15 +77,15 @@
     </cffunction>
     
     <cffunction name="size" access="public" returntype="numeric">
-        <cfreturn variables.instance.size() />
+        <cfreturn variables.size() />
     </cffunction>
     
      <cffunction name="clone" access="public" returntype="any">
-        <cfreturn variables.instance.clone() />
+        <cfreturn variables.clone() />
     </cffunction>
     
     <cffunction name="_toString" access="public" returntype="string">
-        <cfreturn variables.instance.toString() />
+        <cfreturn variables.toString() />
     </cffunction>
     
 

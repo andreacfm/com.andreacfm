@@ -2,8 +2,8 @@
  extends="com.andreacfm.Object"
  implements="com.andreacfm.validate.IValidatable">
 
-	<cfset variables.instance.errors = createObject('java','java.util.ArrayList').init() />
-	<cfset variables.instance.isAlwaysValid = false />
+	<cfset variables.errors = createObject('java','java.util.ArrayList').init() />
+	<cfset variables.isAlwaysValid = false />
 	
 	<!--- 
 		Set to true by the gateway if generated in a sql context where caching wa set to true.
@@ -69,7 +69,7 @@
 		<cfargument name="context" required="false" type="string" default="" />		
 		<cfscript>
 			var validator = getValidator();
-			if(not variables.instance.isAlwaysValid){
+			if(not variables.isAlwaysValid){
 				validator.validate(this,arguments.context);
 			}
 		</cfscript>
@@ -77,13 +77,13 @@
 
 	<!--- isAlwaysValid --->
 	<cffunction name="isAlwaysValid" output="false" returntype="boolean">
-		<cfreturn variables.instance.isAlwaysValid />	
+		<cfreturn variables.isAlwaysValid />	
 	</cffunction>
 	
 	<!---	skipValidation	--->
 	<cffunction name="skipValidation" output="false" returntype="void">
 		<cfargument name="value" type="boolean" required="true" />
-		<cfset variables.instance.isAlwaysValid = value />
+		<cfset variables.isAlwaysValid = value />
 	</cffunction>
 	
 	<!---	isValidObject	--->
@@ -96,11 +96,11 @@
 
     <!---   errors   --->
 	<cffunction name="geterrors" access="public" output="false" returntype="array">
-		<cfreturn variables.instance.errors/>
+		<cfreturn variables.errors/>
 	</cffunction>
 	<cffunction name="seterrors" access="public" output="false" returntype="void">
 		<cfargument name="errors" type="array" required="true"/>
-		<cfset variables.instance.errors = arguments.errors/>
+		<cfset variables.errors = arguments.errors/>
 	</cffunction>
 
 	<!---  hasErrors  --->
@@ -115,40 +115,40 @@
 	
 	<!--- resetErrors --->
 	<cffunction name="resetErrors" returntype="void">	
-		<cfset variables.instance.errors.clear() />
+		<cfset variables.errors.clear() />
 	</cffunction>
 		
 	<!---  addError  --->
 	<cffunction name="addError" output="false" returntype="void">
 		<cfargument name="error" type="string" required="true" />
-		<cfset variables.instance.errors.add(error)>
+		<cfset variables.errors.add(error)>
 	</cffunction>
 
 	<!---	validator	--->
 	<cffunction name="getvalidator" access="public" output="false" returntype="com.andreacfm.validate.Validator">
-		<cfreturn variables.instance.validator/>
+		<cfreturn variables.validator/>
 	</cffunction>
 	<cffunction name="setvalidator" access="public" output="false" returntype="void">
 		<cfargument name="validator" type="com.andreacfm.validate.Validator" required="true"/>
-		<cfset variables.instance.validator = arguments.validator/>
+		<cfset variables.validator = arguments.validator/>
 	</cffunction>
 
 	<!---	dao	--->
 	<cffunction name="getdao" access="public" output="false" returntype="com.andreacfm.datax.Dao">
-		<cfreturn variables.instance.dao/>
+		<cfreturn variables.dao/>
 	</cffunction>
 	<cffunction name="setdao" access="public" output="false" returntype="void">
 		<cfargument name="dao" type="com.andreacfm.datax.dao" required="true"/>
-		<cfset variables.instance.dao = arguments.dao/>
+		<cfset variables.dao = arguments.dao/>
 	</cffunction>
 
 	<!----	beanFactory	--->
 	<cffunction name="getBeanFactory" access="public" returntype="any" output="false" hint="Return the beanFactory instance">
-		<cfreturn variables.instance.beanFactory />
+		<cfreturn variables.beanFactory />
 	</cffunction>		
 	<cffunction name="setBeanFactory" access="public" returntype="void" output="false" hint="Inject a beanFactory reference.">
 		<cfargument name="beanFactory" type="coldspring.beans.BeanFactory" required="true" />
-		<cfset variables.instance.beanFactory = arguments.beanFactory />
+		<cfset variables.beanFactory = arguments.beanFactory />
 	</cffunction>
 
 </cfcomponent>

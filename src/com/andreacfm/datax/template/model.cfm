@@ -33,14 +33,14 @@
 	<!--- #properties[i].name# --->
 	&lt;cffunction name="get#properties[i].name#" output="false" returntype="#properties[i].type#" &gt;
 		&lt;cfscript&gt;	
-		return variables.instance.#properties[i].name#;
+		return variables.#properties[i].name#;
 		&lt;/cfscript&gt;
 	&lt;/cffunction&gt;	
 	
 	&lt;cffunction name="set#properties[i].name#" output="false" returntype="void" &gt;
 		&lt;cfargument name="#properties[i].name#" type="#properties[i].type#" required="true"/>
 		&lt;cfscript&gt;	
-		variables.instance.#properties[i].name# = arguments.#properties[i].name#;
+		variables.#properties[i].name# = arguments.#properties[i].name#;
 		&lt;/cfscript&gt;
 	&lt;/cffunction&gt;	
 </cfoutput>
@@ -50,14 +50,14 @@
 	&lt;!--- #composites[i].listname# --->
 	&lt;cffunction name="get#composites[i].listname#" output="false" returntype="string" &gt;
 		&lt;cfscript&gt;	
-		return variables.instance.#composites[i].listname#;
+		return variables.#composites[i].listname#;
 		&lt;/cfscript&gt;
 	&lt;/cffunction&gt;	
 	
 	&lt;cffunction name="set#composites[i].listname#" output="false" returntype="void" &gt;
 		&lt;cfargument name="#composites[i].listname#" type="string" required="true"/>
 		&lt;cfscript&gt;
-		variables.instance.#composites[i].listname# = arguments.#composites[i].listname#;		
+		variables.#composites[i].listname# = arguments.#composites[i].listname#;		
 		&lt;/cfscript&gt;
 	&lt;/cffunction&gt;	
 	
@@ -84,16 +84,16 @@
 				};							
 			</cfif>
 			if(arguments.pop){
-				return variables.instance.#composites[i].arrayname#[1];
+				return variables.#composites[i].arrayname#[1];
 			}
-			return variables.instance.#composites[i].arrayname#;
+			return variables.#composites[i].arrayname#;
 		&lt;/cfscript&gt;
 	&lt;/cffunction&gt;	
 	
 	&lt;cffunction name="set#composites[i].arrayname#" output="false" returntype="void" &gt;
 		&lt;cfargument name="#composites[i].arrayname#" type="array" required="true"/>
 		&lt;cfscript&gt;	
-		variables.instance.#composites[i].arrayname# = arguments.#composites[i].arrayname#;
+		variables.#composites[i].arrayname# = arguments.#composites[i].arrayname#;
 		variables.instance['loaded']['#composites[i].arrayname#'] = 'loaded';
 		&lt;/cfscript&gt;
 	&lt;/cffunction&gt;	

@@ -59,15 +59,15 @@
 
 	<!---	validator	--->
 	<cffunction name="getvalidator" access="public" output="false" returntype="com.andreacfm.validate.Validator">
-		<cfreturn variables.instance.validator/>
+		<cfreturn variables.validator/>
 	</cffunction>
 	<cffunction name="setvalidator" access="public" output="false" returntype="void">
 		<cfargument name="validator" type="com.andreacfm.validate.Validator" required="true"/>
-		<cfset variables.instance.validator = arguments.validator/>
+		<cfset variables.validator = arguments.validator/>
 	</cffunction>
 
 	<!---getObjectId--->
-	<cffunction name="getObjectId" returntype="string" output="false" hint="Return the identityHashCode of the java object underling the cfc instance.">
+	<cffunction name="getObjectId" returntype="string" output="false" hint="Return the identityHashCode of the java object underling the cfc ">
 		<cfreturn createObject("java", "java.lang.System").identityHashCode(this)/>
 	</cffunction>
 

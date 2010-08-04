@@ -18,17 +18,17 @@
 	<cfargument name="notices" type="array" default="#arrayNew(1)#" />
 	<cfargument name="testmode" type="boolean" default="false" />
 	
-	<cfset variables.instance.MailServer = arguments.MailServer>
-	<cfset variables.instance.DefaultFrom = arguments.From>
-	<cfset variables.instance.DefaultTo = arguments.To>
-	<cfset variables.instance.username = arguments.username>
-	<cfset variables.instance.password = arguments.password>
-	<cfset variables.instance.RootData = arguments.RootData>
-	<cfset variables.instance.options = arguments.options>
-	<cfset variables.instance.testmode = arguments.testmode>
+	<cfset variables.MailServer = arguments.MailServer>
+	<cfset variables.DefaultFrom = arguments.From>
+	<cfset variables.DefaultTo = arguments.To>
+	<cfset variables.username = arguments.username>
+	<cfset variables.password = arguments.password>
+	<cfset variables.RootData = arguments.RootData>
+	<cfset variables.options = arguments.options>
+	<cfset variables.testmode = arguments.testmode>
 	
-	<cfset variables.instance.Notices = StructNew()>
-	<cfset variables.instance.isLogging = false>
+	<cfset variables.Notices = StructNew()>
+	<cfset variables.isLogging = false>
 
 	<cfif not arrayIsEmpty(arguments.notices)>
 		<cfloop from="1" to="#arraylen(arguments.notices)#" index="i">
@@ -37,7 +37,7 @@
 	</cfif>
 	
 	<cfif StructKeyExists(arguments,"DataMgr")>
-		<cfset variables.instance.DataMgr = arguments.DataMgr>
+		<cfset variables.DataMgr = arguments.DataMgr>
 		<cfset startLogging() />
 	</cfif>
 	
@@ -84,16 +84,16 @@ Contents can be a string or a fiel where the string is stored.
 		<cfset arguments.Contents = cont />
 	</cfif>
 	
-	<cfset variables.instance.Notices[arguments.name] = Duplicate(arguments)>
+	<cfset variables.Notices[arguments.name] = Duplicate(arguments)>
 	
 </cffunction>
 
 <cffunction name="getData" access="public" returntype="struct" output="no" hint="I get the data stored in the Mailer component.">
-	<cfreturn variables.instance.RootData>
+	<cfreturn variables.RootData>
 </cffunction>
 
 <cffunction name="getOptions" access="public" returntype="struct" output="no" hint="I get the options stored in the Mailer component.">
-	<cfreturn variables.instance.options>
+	<cfreturn variables.options>
 </cffunction>
 
 <cffunction name="getDataKeys" access="public" returntype="string" output="no" hint="I get the datakeys for the given email notice. The datakeys are the items that can/should be overridden by incoming data.">
@@ -101,33 +101,33 @@ Contents can be a string or a fiel where the string is stored.
 	
 	<cfset var result = "">
 	
-	<cfif StructKeyExists(variables.instance.Notices, arguments.name)>
-		<cfset result = variables.instance.Notices[arguments.name].DataKeys>
+	<cfif StructKeyExists(variables.Notices, arguments.name)>
+		<cfset result = variables.Notices[arguments.name].DataKeys>
 	</cfif>
 	
 	<cfreturn result>
 </cffunction>
 
 <cffunction name="getFrom" access="public" returntype="string" output="no">
-	<cfreturn variables.instance.DefaultFrom>
+	<cfreturn variables.DefaultFrom>
 </cffunction>
 
 <cffunction name="getNotices" access="public" returntype="struct" output="no">
-	<cfreturn variables.instance.Notices>
+	<cfreturn variables.Notices>
 </cffunction>
 
 <cffunction name="removeNotice" access="public" returntype="void" output="no" hint="I remove a notice from the mailer.">
 	<cfargument name="name" type="string" required="yes">
 	
-	<cfset StructDelete(variables.instance.Notices,arguments.name)>
+	<cfset StructDelete(variables.Notices,arguments.name)>
 	
 </cffunction>
 
 <cffunction name="send" access="public" returntype="boolean" output="no" hint="I send an email message and indicate if the send was successful.">
-	<cfargument name="To" type="string" default="#variables.instance.DefaultTo#">
+	<cfargument name="To" type="string" default="#variables.DefaultTo#">
 	<cfargument name="Subject" type="string" required="no">
 	<cfargument name="Contents" type="string" required="no">
-	<cfargument name="From" type="string" default="#variables.instance.DefaultFrom#">
+	<cfargument name="From" type="string" default="#variables.DefaultFrom#">
 	<cfargument name="CC" type="string" default="">
 	<cfargument name="BCC" type="string" default="">
 	<cfargument name="type" type="string" default="text">
@@ -135,8 +135,8 @@ Contents can be a string or a fiel where the string is stored.
 	<cfargument name="Attachments" type="string" default="">
 	<cfargument name="html" type="string" default="">
 	<cfargument name="text" type="string" default="">
-	<cfargument name="username" type="string" default="#variables.instance.username#">
-	<cfargument name="password" type="string" default="#variables.instance.password#">
+	<cfargument name="username" type="string" default="#variables.username#">
+	<cfargument name="password" type="string" default="#variables.password#">
 	<cfargument name="FailTo" type="string" default="">
 	<cfargument name="mailerID" type="string" default="ColdFusion MX Application Server">
 	<cfargument name="wraptext" type="string" default="800">
@@ -144,7 +144,7 @@ Contents can be a string or a fiel where the string is stored.
 	<cfset var sent = false>
 	<cfset var attachment = "">
 	
-	<cfif variables.instance.testmode>
+	<cfif variables.testmode>
 		<cfset sent = true />
 	</cfif>
 
@@ -169,18 +169,18 @@ Contents can be a string or a fiel where the string is stored.
 		</cfif>
 	</cfif>
 	
-	<cfif not variables.instance.testmode>
+	<cfif not variables.testmode>
 		<cfloop list="#arguments.to#" index="t">
 			<cfif StructKeyExists(arguments,"Contents")>
 				<cfif Len(arguments.username) AND Len(arguments.password)>
-					<cfmail to="#t#" from="#arguments.From#" type="#arguments.type#" subject="#arguments.Subject#" cc="#arguments.CC#" bcc="#arguments.BCC#" server="#variables.instance.MailServer#" failto="#arguments.failto#" mailerID="#arguments.mailerID#" wraptext="#arguments.wraptext#" username="#arguments.username#" password="#arguments.password#"><cfif Len(Trim(arguments.ReplyTo))><cfmailparam name="Reply-To" value="#Trim(arguments.ReplyTo)#"></cfif>#arguments.Contents#<cfif Len(arguments.Attachments)><cfloop index="Attachment" list="#arguments.Attachments#"><cfmailparam file="#Attachment#"></cfloop></cfif></cfmail>
+					<cfmail to="#t#" from="#arguments.From#" type="#arguments.type#" subject="#arguments.Subject#" cc="#arguments.CC#" bcc="#arguments.BCC#" server="#variables.MailServer#" failto="#arguments.failto#" mailerID="#arguments.mailerID#" wraptext="#arguments.wraptext#" username="#arguments.username#" password="#arguments.password#"><cfif Len(Trim(arguments.ReplyTo))><cfmailparam name="Reply-To" value="#Trim(arguments.ReplyTo)#"></cfif>#arguments.Contents#<cfif Len(arguments.Attachments)><cfloop index="Attachment" list="#arguments.Attachments#"><cfmailparam file="#Attachment#"></cfloop></cfif></cfmail>
 				<cfelse>
-					<cfmail to="#t#" from="#arguments.From#" type="#arguments.type#" subject="#arguments.Subject#" cc="#arguments.CC#" bcc="#arguments.BCC#" server="#variables.instance.MailServer#" failto="#arguments.failto#" mailerID="#arguments.mailerID#" wraptext="#arguments.wraptext#"><cfif Len(Trim(arguments.ReplyTo))><cfmailparam name="Reply-To" value="#Trim(arguments.ReplyTo)#"></cfif>#arguments.Contents#<cfif Len(arguments.Attachments)><cfloop index="Attachment" list="#arguments.Attachments#"><cfmailparam file="#Attachment#"></cfloop></cfif></cfmail>
+					<cfmail to="#t#" from="#arguments.From#" type="#arguments.type#" subject="#arguments.Subject#" cc="#arguments.CC#" bcc="#arguments.BCC#" server="#variables.MailServer#" failto="#arguments.failto#" mailerID="#arguments.mailerID#" wraptext="#arguments.wraptext#"><cfif Len(Trim(arguments.ReplyTo))><cfmailparam name="Reply-To" value="#Trim(arguments.ReplyTo)#"></cfif>#arguments.Contents#<cfif Len(arguments.Attachments)><cfloop index="Attachment" list="#arguments.Attachments#"><cfmailparam file="#Attachment#"></cfloop></cfif></cfmail>
 				</cfif>
 				<cfset sent = true>
 			<cfelse>
 				<cfif Len(arguments.username) AND Len(arguments.password)>
-					<cfmail to="#t#" from="#arguments.From#" subject="#arguments.Subject#" cc="#arguments.CC#" bcc="#arguments.BCC#" server="#variables.instance.MailServer#" failto="#arguments.failto#" mailerID="#arguments.mailerID#" wraptext="#arguments.wraptext#" username="#arguments.username#" password="#arguments.password#"><cfif Len(Trim(arguments.ReplyTo))><cfmailparam name="Reply-To" value="#Trim(arguments.ReplyTo)#"></cfif>
+					<cfmail to="#t#" from="#arguments.From#" subject="#arguments.Subject#" cc="#arguments.CC#" bcc="#arguments.BCC#" server="#variables.MailServer#" failto="#arguments.failto#" mailerID="#arguments.mailerID#" wraptext="#arguments.wraptext#" username="#arguments.username#" password="#arguments.password#"><cfif Len(Trim(arguments.ReplyTo))><cfmailparam name="Reply-To" value="#Trim(arguments.ReplyTo)#"></cfif>
 						<cfif Len(arguments.text)>
 							<cfmailpart type="text" charset="utf-8" wraptext="#arguments.wraptext#">#arguments.text#</cfmailpart>
 						</cfif>
@@ -190,7 +190,7 @@ Contents can be a string or a fiel where the string is stored.
 						<cfif Len(arguments.Attachments)><cfloop index="Attachment" list="#arguments.Attachments#"><cfmailparam file="#Attachment#"></cfloop></cfif>
 					</cfmail>
 				<cfelse>
-					<cfmail to="#t#" from="#arguments.From#" subject="#arguments.Subject#" cc="#arguments.CC#" bcc="#arguments.BCC#" server="#variables.instance.MailServer#" failto="#arguments.failto#" mailerID="#arguments.mailerID#" wraptext="#arguments.wraptext#"><cfif Len(Trim(arguments.ReplyTo))><cfmailparam name="Reply-To" value="#Trim(arguments.ReplyTo)#"></cfif>
+					<cfmail to="#t#" from="#arguments.From#" subject="#arguments.Subject#" cc="#arguments.CC#" bcc="#arguments.BCC#" server="#variables.MailServer#" failto="#arguments.failto#" mailerID="#arguments.mailerID#" wraptext="#arguments.wraptext#"><cfif Len(Trim(arguments.ReplyTo))><cfmailparam name="Reply-To" value="#Trim(arguments.ReplyTo)#"></cfif>
 						<cfif Len(arguments.text)>
 							<cfmailpart type="text" charset="utf-8" wraptext="#arguments.wraptext#">#arguments.text#</cfmailpart>
 						</cfif>
@@ -232,10 +232,10 @@ Contents can be a string or a fiel where the string is stored.
 	</cfif>
 	
 	<!--- Put in RootData, if any --->
-	<cfset StructAppend(info, variables.instance.RootData , false)>
+	<cfset StructAppend(info, variables.RootData , false)>
 	
 	<cflock timeout="40" throwontimeout="yes" name="Mailer_SendNotice" type="EXCLUSIVE">
-		<cfset thisNotice = Duplicate(variables.instance.Notices[arguments.name])>
+		<cfset thisNotice = Duplicate(variables.Notices[arguments.name])>
 	</cflock>
 	
 	<!--- If this notice should have incoming data, make sure all keys are present --->
@@ -275,10 +275,10 @@ Contents can be a string or a fiel where the string is stored.
 	<cfif len(arguments.to)><cfset thisNotice.to = arguments.to /></cfif>
 		
 	<!--- Setting defaults here instead of in addNotice() in case variables.instance change between addNotice and sendNotice --->
-	<cfif NOT Len(thisNotice.To)><cfset thisNotice.To = variables.instance.DefaultTo></cfif>
-	<cfif NOT Len(thisNotice.From)><cfset thisNotice.From = variables.instance.DefaultFrom></cfif>
-	<cfif NOT Len(thisNotice.username)><cfset thisNotice.username = variables.instance.username></cfif>
-	<cfif NOT Len(thisNotice.password)><cfset thisNotice.password = variables.instance.password></cfif>
+	<cfif NOT Len(thisNotice.To)><cfset thisNotice.To = variables.DefaultTo></cfif>
+	<cfif NOT Len(thisNotice.From)><cfset thisNotice.From = variables.DefaultFrom></cfif>
+	<cfif NOT Len(thisNotice.username)><cfset thisNotice.username = variables.username></cfif>
+	<cfif NOT Len(thisNotice.password)><cfset thisNotice.password = variables.password></cfif>
 	
 	<cfreturn this.send(argumentCollection=thisNotice) />
 </cffunction>
@@ -292,18 +292,18 @@ Contents can be a string or a fiel where the string is stored.
 	<cfif not structKeyExists(variables.instance,"datamgr") and arguments.dataMgr eq "">
 		<cfthrow message="No dataMgr instance available for starting logging.">
 	<cfelseif not structKeyExists(variables.instance,"datamgr") and isObject(arguments.dataMgr)>	
-		<cfset variables.instance.DataMgr = arguments.DataMgr>
+		<cfset variables.DataMgr = arguments.DataMgr>
 	</cfif>
 		
-	<cfset variables.instance.DataMgr.loadXml(dbXml,true,true)>
+	<cfset variables.DataMgr.loadXml(dbXml,true,true)>
 	
-	<cfset variables.instance.isLogging = true>
+	<cfset variables.isLogging = true>
 	
 </cffunction>
 
 <cffunction name="stopLogging" access="public" returntype="void" output="no" hint="I stop the logging of email sent from Mailer.">
 	
-	<cfset variables.instance.isLogging = false>
+	<cfset variables.isLogging = false>
 	
 </cffunction>
 
@@ -315,9 +315,9 @@ Contents can be a string or a fiel where the string is stored.
 
 <cffunction name="logSend" access="private" returntype="void" output="no">
 	
-	<cfif variables.instance.isLogging>
+	<cfif variables.isLogging>
 		<cfset arguments.DateSent = now()>
-		<cfset res = variables.instance.DataMgr.insertRecord("mailerLogs",variables.instance.DataMgr.truncate("mailerLogs",arguments))>
+		<cfset res = variables.DataMgr.insertRecord("mailerLogs",variables.DataMgr.truncate("mailerLogs",arguments))>
 	</cfif>
 	
 </cffunction>

@@ -70,11 +70,11 @@
 					setChildren(getRegex(),getchildrentype());
 					setHasLoadedChildren(true);
 					
-					return variables.instance.children;
+					return variables.children;
 			
 				}else{
 			
-					return variables.instance.children;
+					return variables.children;
 				}			
 			
 			}else{

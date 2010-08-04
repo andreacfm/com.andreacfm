@@ -39,14 +39,14 @@
 	
 	<cffunction name="getbookId" output="false" returntype="numeric" >
 		<cfscript>	
-		return variables.instance.bookId;
+		return variables.bookId;
 		</cfscript>
 	</cffunction>	
 	
 	<cffunction name="setbookId" output="false" returntype="void" >
 		<cfargument name="bookId" type="numeric" required="true"/>
 		<cfscript>	
-		variables.instance.bookId = arguments.bookId;
+		variables.bookId = arguments.bookId;
 		</cfscript>
 	</cffunction>	
 
@@ -54,14 +54,14 @@
 	
 	<cffunction name="getbookName" output="false" returntype="string" >
 		<cfscript>	
-		return variables.instance.bookName;
+		return variables.bookName;
 		</cfscript>
 	</cffunction>	
 	
 	<cffunction name="setbookName" output="false" returntype="void" >
 		<cfargument name="bookName" type="string" required="true"/>
 		<cfscript>	
-		variables.instance.bookName = arguments.bookName;
+		variables.bookName = arguments.bookName;
 		</cfscript>
 	</cffunction>	
 
@@ -69,14 +69,14 @@
 	
 	<cffunction name="getcreateOn" output="false" returntype="date" >
 		<cfscript>	
-		return variables.instance.createOn;
+		return variables.createOn;
 		</cfscript>
 	</cffunction>	
 	
 	<cffunction name="setcreateOn" output="false" returntype="void" >
 		<cfargument name="createOn" type="date" required="true"/>
 		<cfscript>	
-		variables.instance.createOn = arguments.createOn;
+		variables.createOn = arguments.createOn;
 		</cfscript>
 	</cffunction>	
 
@@ -84,14 +84,14 @@
 	
 	<cffunction name="getsort" output="false" returntype="numeric" >
 		<cfscript>	
-		return variables.instance.sort;
+		return variables.sort;
 		</cfscript>
 	</cffunction>	
 	
 	<cffunction name="setsort" output="false" returntype="void" >
 		<cfargument name="sort" type="numeric" required="true"/>
 		<cfscript>	
-		variables.instance.sort = arguments.sort;
+		variables.sort = arguments.sort;
 		</cfscript>
 	</cffunction>	
 
@@ -101,14 +101,14 @@
 	<!--- authorList --->
 	<cffunction name="getauthorList" output="false" returntype="string" >
 		<cfscript>	
-		return variables.instance.authorList;
+		return variables.authorList;
 		</cfscript>
 	</cffunction>	
 	
 	<cffunction name="setauthorList" output="false" returntype="void" >
 		<cfargument name="authorList" type="string" required="true"/>
 		<cfscript>
-		variables.instance.authorList = arguments.authorList;		
+		variables.authorList = arguments.authorList;		
 		</cfscript>
 	</cffunction>	
 	
@@ -121,23 +121,23 @@
 		<cfscript>
 			var advsql = structNew();	
 			var list = "";
-			if(listlen(variables.instance.authorList) and not structKeyExists(this['loaded'],'authorarray') or arguments.refresh){
+			if(listlen(variables.authorList) and not structKeyExists(this['loaded'],'authorarray') or arguments.refresh){
 				list = getauthorList();
 				advsql.where = "authorId IN (#list#)";
 				setauthorarray(getBeanFactory().getBean('dsManager').getService('authorService').read( data = arguments.data, filters = arguments.filters, advsql = advsql));
 				this['loaded']['authorarray'] = 'loaded';
 			};
 			if(arguments.pop){
-				return variables.instance.authorarray[1];
+				return variables.authorarray[1];
 			}
-			return variables.instance.authorarray;
+			return variables.authorarray;
 		</cfscript>
 	</cffunction>	
 	
 	<cffunction name="setauthorarray" output="false" returntype="void" >
 		<cfargument name="authorarray" type="array" required="true"/>
 		<cfscript>	
-		variables.instance.authorarray = arguments.authorarray;
+		variables.authorarray = arguments.authorarray;
 		</cfscript>
 	</cffunction>	
 

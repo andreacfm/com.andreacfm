@@ -14,7 +14,7 @@ messagesToBody must be called manually before rendering
 	<cfproperty name="type" type="string"/>
 	<cfproperty name="mapping" type="string"/>
 
-	<cfset variables.instance.messages = createObject('java','java.util.ArrayList').init() />
+	<cfset variables.messages = createObject('java','java.util.ArrayList').init() />
 
 <!---------------------------CONSTRUCTOR------------------------------------------------------->
 	<cffunction name="init" access="public" output="false" returntype="com.andreacfm.ui.Box">	
@@ -75,29 +75,29 @@ messagesToBody must be called manually before rendering
 	<!--- addMessage --->
 	<cffunction name="addMessage" returntype="void" output="false">
 		<cfargument name="message" type="string" required="true" />
-		<cfset variables.instance.messages.add(message) />
+		<cfset variables.messages.add(message) />
 	</cffunction>
 
 	<!--- getMessages --->
 	<cffunction name="getMessages" returntype="Array" output="false">
-		<cfreturn variables.instance.messages />
+		<cfreturn variables.messages />
 	</cffunction>
 
 	<!--- addMessages --->
 	<cffunction name="addMessages" returntype="void" output="false">
 		<cfargument name="message" type="Array" required="true" />
-		<cfset variables.instance.messages.addAll(message) />
+		<cfset variables.messages.addAll(message) />
 	</cffunction>
 	
 	<!--- resetMessages --->
 	<cffunction name="resetMessages" returntype="void" output="false">
-		<cfset variables.instance.messages.clear() />
+		<cfset variables.messages.clear() />
 	</cffunction>
 
 	<!--- hasMessages --->
 	<cffunction name="hasMessages" returntype="Boolean" output="false">
 		<cfset var res = true />
-		<cfif variables.instance.messages.isEmpty()>
+		<cfif variables.messages.isEmpty()>
 			<cfset res = false />
 		</cfif>
 		<cfreturn res />
@@ -109,7 +109,7 @@ messagesToBody must be called manually before rendering
 		<cfif hasMessages()>
 			<cfsavecontent variable="temp">
 				<cfoutput>
-				<cfset iterator = variables.instance.messages.iterator()/>
+				<cfset iterator = variables.messages.iterator()/>
 				<cfoutput>
 				<ul>
 					<cfloop condition="#iterator.hasNext()#">
@@ -126,56 +126,56 @@ messagesToBody must be called manually before rendering
 	
 	<!---header--->
 	<cffunction name="getheader" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.header/>
+		<cfreturn variables.header/>
 	</cffunction>
 	<cffunction name="setheader" access="public" output="false" returntype="void">
 		<cfargument name="header" type="string" required="true"/>
-		<cfset variables.instance.header = arguments.header/>
+		<cfset variables.header = arguments.header/>
 	</cffunction>
 
 	<!---body--->
 	<cffunction name="getbody" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.body/>
+		<cfreturn variables.body/>
 	</cffunction>
 	<cffunction name="setbody" access="public" output="false" returntype="void">
 		<cfargument name="body" type="string" required="true"/>
-		<cfset variables.instance.body = arguments.body/>
+		<cfset variables.body = arguments.body/>
 	</cffunction>
 
 	<!---footer--->
 	<cffunction name="getfooter" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.footer/>
+		<cfreturn variables.footer/>
 	</cffunction>
 	<cffunction name="setfooter" access="public" output="false" returntype="void">
 		<cfargument name="footer" type="string" required="true"/>
-		<cfset variables.instance.footer = arguments.footer/>
+		<cfset variables.footer = arguments.footer/>
 	</cffunction>
 
 	<!---containerClass--->
 	<cffunction name="getcontainerClass" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.containerClass/>
+		<cfreturn variables.containerClass/>
 	</cffunction>
 	<cffunction name="setcontainerClass" access="public" output="false" returntype="void">
 		<cfargument name="containerClass" type="string" required="true"/>
-		<cfset variables.instance.containerClass = arguments.containerClass/>
+		<cfset variables.containerClass = arguments.containerClass/>
 	</cffunction>
 
 	<!---   skin   --->
 	<cffunction name="getskin" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.skin/>
+		<cfreturn variables.skin/>
 	</cffunction>
 	<cffunction name="setskin" access="public" output="false" returntype="void">
 		<cfargument name="skin" type="string" required="true"/>
-		<cfset variables.instance.skin = arguments.skin/>
+		<cfset variables.skin = arguments.skin/>
 	</cffunction>
 
 	<!--- mapping--->
      <cffunction name="setmapping" access="public" returntype="void">
 		<cfargument name="mapping" type="String" required="true"/>
-		<cfset variables.instance.mapping = mapping />
+		<cfset variables.mapping = mapping />
 	</cffunction> 
 	<cffunction name="getmapping" access="public" returntype="String">
-		<cfreturn variables.instance.mapping/>
+		<cfreturn variables.mapping/>
 	</cffunction>	
 
 </cfcomponent>

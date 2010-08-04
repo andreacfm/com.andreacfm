@@ -21,99 +21,99 @@
 <!---cContentId--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getcContentId" access="public" output="false" returntype="numeric">
-		<cfreturn variables.instance.cContentId/>
+		<cfreturn variables.cContentId/>
 	</cffunction>
 	<cffunction name="setcContentId" access="public" output="false" returntype="void">
 		<cfargument name="cContentId" type="numeric" required="true"/>
-		<cfset variables.instance.cContentId = arguments.cContentId/>
+		<cfset variables.cContentId = arguments.cContentId/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---rvBody--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getrvBody" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.rvBody/>
+		<cfreturn variables.rvBody/>
 	</cffunction>
 	<cffunction name="setrvBody" access="public" output="false" returntype="void">
 		<cfargument name="rvBody" type="string" required="true"/>
-		<cfset variables.instance.rvBody = arguments.rvBody/>
+		<cfset variables.rvBody = arguments.rvBody/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---rvFile--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getrvFile" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.rvFile/>
+		<cfreturn variables.rvFile/>
 	</cffunction>
 	<cffunction name="setrvFile" access="public" output="false" returntype="void">
 		<cfargument name="rvFile" type="string" required="true"/>
-		<cfset variables.instance.rvFile = arguments.rvFile/>
+		<cfset variables.rvFile = arguments.rvFile/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---rvImage--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getrvImage" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.rvImage/>
+		<cfreturn variables.rvImage/>
 	</cffunction>
 	<cffunction name="setrvImage" access="public" output="false" returntype="void">
 		<cfargument name="rvImage" type="string" required="true"/>
-		<cfset variables.instance.rvImage = arguments.rvImage/>
+		<cfset variables.rvImage = arguments.rvImage/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---rvRevisionId--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getrvRevisionId" access="public" output="false" returntype="numeric">
-		<cfreturn variables.instance.rvRevisionId/>
+		<cfreturn variables.rvRevisionId/>
 	</cffunction>
 	<cffunction name="setrvRevisionId" access="public" output="false" returntype="void">
 		<cfargument name="rvRevisionId" type="numeric" required="true"/>
-		<cfset variables.instance.rvRevisionId = arguments.rvRevisionId/>
+		<cfset variables.rvRevisionId = arguments.rvRevisionId/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---rvTeaser--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getrvTeaser" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.rvTeaser/>
+		<cfreturn variables.rvTeaser/>
 	</cffunction>
 	<cffunction name="setrvTeaser" access="public" output="false" returntype="void">
 		<cfargument name="rvTeaser" type="string" required="true"/>
-		<cfset variables.instance.rvTeaser = arguments.rvTeaser/>
+		<cfset variables.rvTeaser = arguments.rvTeaser/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---rvTitle--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getrvTitle" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.rvTitle/>
+		<cfreturn variables.rvTitle/>
 	</cffunction>
 	<cffunction name="setrvTitle" access="public" output="false" returntype="void">
 		<cfargument name="rvTitle" type="string" required="true"/>
-		<cfset variables.instance.rvTitle = arguments.rvTitle/>
+		<cfset variables.rvTitle = arguments.rvTitle/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---tnodeid--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="gettnodeid" access="public" output="false" returntype="numeric">
-		<cfreturn variables.instance.tnodeid/>
+		<cfreturn variables.tnodeid/>
 	</cffunction>
 	<cffunction name="settnodeid" access="public" output="false" returntype="void">
 		<cfargument name="tnodeid" type="numeric" required="true"/>
-		<cfset variables.instance.tnodeid = arguments.tnodeid/>
+		<cfset variables.tnodeid = arguments.tnodeid/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---tlanguage--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="gettlanguage" access="public" output="false" returntype="string">
-		<cfreturn getFacade().getObject('anxhelper').libs().getLocaleCode(variables.instance.tlanguage)/>
+		<cfreturn getFacade().getObject('anxhelper').libs().getLocaleCode(variables.tlanguage)/>
 	</cffunction>
 	<cffunction name="settlanguage" access="public" output="false" returntype="void">
 		<cfargument name="tlanguage" type="string" required="true"/>		
-		<cfset variables.instance.tlanguage = arguments.tlanguage />
+		<cfset variables.tlanguage = arguments.tlanguage />
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 

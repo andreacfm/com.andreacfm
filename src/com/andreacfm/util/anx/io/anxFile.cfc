@@ -23,36 +23,36 @@
 <!---metaType--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getmetaType" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.metaType/>
+		<cfreturn variables.metaType/>
 	</cffunction>
 	<cffunction name="setmetaType" access="public" output="false" returntype="void">
 		<cfargument name="metaType" type="string" required="true"/>
-		<cfset variables.instance.metaType = arguments.metaType/>
+		<cfset variables.metaType = arguments.metaType/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
 <!---id--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getid" access="public" output="false" returntype="numeric">
-		<cfreturn variables.instance.id/>
+		<cfreturn variables.id/>
 	</cffunction>
 	<cffunction name="setid" access="public" output="false" returntype="void">
 		<cfargument name="id" type="numeric" required="true"/>
-		<cfset variables.instance.id = arguments.id/>
+		<cfset variables.id = arguments.id/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 	
 <!---meta--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getmeta" access="public" output="false" returntype="array">
-		<cfreturn variables.instance.meta/>
+		<cfreturn variables.meta/>
 	</cffunction>
 	<cffunction name="setmeta" access="public" output="false" returntype="void">
 		<cfargument name="filename" required="false" default="#getname()#" type="string" />
 		<cfscript>
 			var q = application.ancontent.getFileMetadata(getmetaType(),getId(),arguments.filename);
 			var meta = createObject('component','com.andreacfm.util.converter').queryToArray(q);
-			variables.instance.meta = meta;
+			variables.meta = meta;
 		</cfscript>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->

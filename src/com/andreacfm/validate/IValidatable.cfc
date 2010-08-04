@@ -51,6 +51,4 @@
 		<cfargument name="validator" type="com.andreacfm.validate.Validator" required="true"/>
 	</cffunction>
 
-
-
 </cfinterface>

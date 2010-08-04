@@ -4,7 +4,7 @@
 	
 	<cfscript>
 	variables.instance = structNew();
-	variables.instance.beans = structNew();
+	variables.beans = structNew();
 	</cfscript>		
 
 	<!---	constructor	 --->		
@@ -21,8 +21,8 @@
 			
 			this.testmode = arguments.testmode;
 			this.autowire = arguments.autowire;
-			variables.instance.dataMgr = arguments.dataMgr;
-			variables.instance.EventManager = arguments.EventManager;
+			variables.dataMgr = arguments.dataMgr;
+			variables.EventManager = arguments.EventManager;
 
 			if(not arrayIsEmpty(config)){
 				for( i = 1 ; i <= arraylen(config); i++){
@@ -46,7 +46,7 @@
 		<cfargument name="id" type="string" required="true" />
 				
 		<cfscript>			
-			var s = variables.instance.beans;
+			var s = variables.beans;
 			var beanClass = s[id].ModelConfig.getbeanClass();
 			var decorator = s[id].ModelConfig.getDecorator();
 			var dao = getDaoFromCache(id);
@@ -77,7 +77,7 @@
 	<cffunction name="beanExists" output="false" returntype="boolean">
 		<cfargument name="id" type="string" required="true" />
 		<cfscript>
-		if(structKeyExists(variables.instance.beans,arguments.id)){
+		if(structKeyExists(variables.beans,arguments.id)){
 			return true;
 		}
 		return false;
@@ -86,7 +86,7 @@
 
 	<!---   dataMgr   --->
 	<cffunction name="getdataMgr" access="public" output="false" returntype="com.andreacfm.datax.dataMgr.dataMgr">
-		<cfreturn variables.instance.dataMgr/>
+		<cfreturn variables.dataMgr/>
 	</cffunction>
 
 	<!---	makeBeans=	--->
@@ -383,16 +383,16 @@
 
 	<!----	beanFactory	--->
 	<cffunction name="getBeanFactory" access="public" returntype="any" output="false" hint="Return the beanFactory instance">
-		<cfreturn variables.instance.beanFactory />
+		<cfreturn variables.beanFactory />
 	</cffunction>		
 	<cffunction name="setBeanFactory" access="public" returntype="void" output="false" hint="Inject a beanFactory reference.">
 		<cfargument name="beanFactory" type="coldspring.beans.BeanFactory" required="true" />
-		<cfset variables.instance.beanFactory = arguments.beanFactory />
+		<cfset variables.beanFactory = arguments.beanFactory />
 	</cffunction>
 
 	<!--- EventManager--->
     <cffunction name="getEventManager" access="public" returntype="EventManager.EventManager">
-    	<cfreturn variables.instance.EventManager/>
+    	<cfreturn variables.EventManager/>
     </cffunction>
 	
 </cfcomponent>

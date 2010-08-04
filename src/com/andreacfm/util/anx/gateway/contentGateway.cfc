@@ -9,11 +9,11 @@
 		<cfargument name="dataSettingsBean" required="true" type="com.andreacfm.core.datasettingsbean">
 		<cfargument name="converter" required="true" type="com.andreacfm.core.object" />
 
-			<cfset variables.instance.table = arguments.dataSettingsBean.getTable() />
-			<cfset variables.instance.skipFields = arguments.dataSettingsBean.getskipFields() />
-			<cfset variables.instance.beanClass = arguments.dataSettingsBean.getbeanClass() />
-			<cfset variables.instance.defaultOrderBy = arguments.dataSettingsBean.getdefaultOrderBy() />						
-			<cfset variables.instance.converter = arguments.converter />
+			<cfset variables.table = arguments.dataSettingsBean.getTable() />
+			<cfset variables.skipFields = arguments.dataSettingsBean.getskipFields() />
+			<cfset variables.beanClass = arguments.dataSettingsBean.getbeanClass() />
+			<cfset variables.defaultOrderBy = arguments.dataSettingsBean.getdefaultOrderBy() />						
+			<cfset variables.converter = arguments.converter />
 			
 		<cfreturn this/>		
 	</cffunction>

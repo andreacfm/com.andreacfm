@@ -32,7 +32,7 @@
     
     <cffunction name="add" access="public" returntype="void">
         <cfargument name="value" type="any" required="true" />
-        <cfset variables.instance.add( arguments.value )>
+        <cfset variables.add( arguments.value )>
     </cffunction>
     
     <cffunction name="addAll" access="public" returntype="void">

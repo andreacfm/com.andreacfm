@@ -79,7 +79,7 @@ Usage:
 	
 		<cffunction name="setValidatorFactory" access="public" returntype="void" output="false" hint="I set the ValidatorFactory.">
 			<cfargument name="validatorFactory" type="any" required="true" hint="ValidatorFactory" />
-			<cfset variables.instance.validatorFactory = arguments.validatorFactory />
+			<cfset variables.validatorFactory = arguments.validatorFactory />
 		</cffunction>
 	
 	Once the Observer is registered with Transfer, any time you create a Transfer Decorator, the Observer will
@@ -125,12 +125,12 @@ Usage:
 	</cffunction>
 	
 	<cffunction name="getBeanInjector" access="public" returntype="any" output="false" hint="I return the BeanInjector.">
-		<cfreturn variables.instance.beanInjector />
+		<cfreturn variables.beanInjector />
 	</cffunction>
 		
 	<cffunction name="setBeanInjector" access="public" returntype="void" output="false" hint="I set the BeanInjector.">
 		<cfargument name="beanInjector" type="any" required="true" hint="BeanInjector" />
-		<cfset variables.instance.beanInjector = arguments.beanInjector />
+		<cfset variables.beanInjector = arguments.beanInjector />
 	</cffunction>
 
 </cfcomponent>

@@ -9,9 +9,9 @@
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr" />
 		<cfargument name="EventManager" required="true" type="EventManager.EventManager" />		
 		<cfscript>
-			variables.instance.ModelConfig = arguments.ModelConfig;
-			variables.instance.dataMgr = arguments.dataMgr;
-			variables.instance.EventManager = arguments.EventManager;
+			variables.ModelConfig = arguments.ModelConfig;
+			variables.dataMgr = arguments.dataMgr;
+			variables.EventManager = arguments.EventManager;
 		</cfscript>
 	<cfreturn this/>	
 	</cffunction>
@@ -106,7 +106,7 @@
 			<!--- remove complex values from the struct passed to dataMgr --->
 			<cfset stripComplexValues(d,inst) />
 						
-			<cfloop list="#variables.instance.ModelConfig.getIgnoreUpdate()#" index="ig">
+			<cfloop list="#variables.ModelConfig.getIgnoreUpdate()#" index="ig">
 				<cfset structdelete(d,ig) />
 			</cfloop>
 			
@@ -132,17 +132,17 @@
 
 	<!---ModelConfig--->
 	<cffunction name="getModelConfig" access="public" output="false" returntype="com.andreacfm.datax.ModelConfig">
-		<cfreturn variables.instance.ModelConfig/>
+		<cfreturn variables.ModelConfig/>
 	</cffunction>
 
 	<!---dataMgr instance--->
 	<cffunction name="getdataMgr" access="public" output="false" returntype="com.andreacfm.datax.dataMgr.dataMgr">
-		<cfreturn variables.instance.dataMgr />
+		<cfreturn variables.dataMgr />
 	</cffunction>
 
 	<!--- Event Manager--->
 	<cffunction name="getEventManager" access="public" returntype="EventManager.EventManager">
-		<cfreturn variables.instance.EventManager/>
+		<cfreturn variables.EventManager/>
 	</cffunction>
 	
 	<!-----------------------------------------  PRIVATE   ---------------------------------------------------------------->

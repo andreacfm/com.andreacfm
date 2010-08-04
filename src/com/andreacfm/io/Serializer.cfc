@@ -8,7 +8,7 @@
 <!--------------------------------------------------------------------------------------------------------------------->	
 	<cffunction name="init" access="public" returntype="component" output="no">
 		<cfargument name="destination" type="string" required="no" default="#ExpandPath('.')#" />
-		<cfset variables.instance.destination = arguments.destination />
+		<cfset variables.destination = arguments.destination />
 		<cfreturn this />
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
@@ -22,7 +22,7 @@
 		var fileOut = CreateObject( 'java' , 'java.io.FileOutputStream' );
 		var objOut = CreateObject( 'java' , 'java.io.ObjectOutputStream' );
 		
-		fileOut.init( variables.instance.destination & arguments.name);
+		fileOut.init( variables.destination & arguments.name);
 		
 		objOut.init( fileOut );
 		objOut.writeObject( arguments.value );
@@ -40,7 +40,7 @@
 		var objIn = CreateObject( 'java' , 'java.io.ObjectInputStream' );
 		var result = "";
 		
-		fileIn.init( variables.instance.destination & arguments.name );
+		fileIn.init( variables.destination & arguments.name );
 		
 		objIn.init( fileIn );
 		result = objIn.readObject();
@@ -53,11 +53,11 @@
 <!---destination--->
 <!--------------------------------------------------------------------------------------------------------------------->
 	<cffunction name="getdestination" access="public" output="false" returntype="string">
-		<cfreturn variables.instance.destination/>
+		<cfreturn variables.destination/>
 	</cffunction>
 	<cffunction name="setdestination" access="public" output="false" returntype="void">
 		<cfargument name="destination" type="string" required="true"/>
-		<cfset variables.instance.destination = arguments.destination/>
+		<cfset variables.destination = arguments.destination/>
 	</cffunction>
 <!--------------------------------------------------------------------------------------------------------------------->
 
