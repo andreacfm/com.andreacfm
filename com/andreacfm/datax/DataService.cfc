@@ -2,7 +2,7 @@
  output="false"
  name="DatsService" 
  hint="Data Service Class"
- extends="com.andreacfm.Object">
+ extends="com.andreacfm.datax.Base">
 
 	<!---	constructor	--->		
 	<cffunction name="init" description="initialize the object settings struct" output="false" returntype="com.andreacfm.datax.DataService">	

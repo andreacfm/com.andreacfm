@@ -1,8 +1,7 @@
-<cfcomponent 
-	output="false"
-	name="Sql"
-	extends="com.andreacfm.Object">
+<cfcomponent output="false" name="Sql" accessors="true" extends="com.andreacfm.datax.Base">
 
+	<cfproperty name="method" type="string" />
+	<cfproperty name="table" type="string" />
 	<cfproperty name="orderby" type="string" />
 	<cfproperty name="data" type="struct" />
 	<cfproperty name="fieldlist" type="string" />
@@ -11,6 +10,7 @@
 	<cfproperty name="advsql" type="struct" />
 	<cfproperty name="alive" type="boolean" />
 	<cfproperty name="offset" type="numeric">
+	<cfproperty name="cacheKey" type="com.andreacfm.datax.CacheKey">
 	
 
 	<cfset variables.alive = true />	
@@ -33,6 +33,7 @@
 		<cfargument name="filters" required="false" type="array" default="#arrayNew(1)#"/>
 		<cfargument name="cache" required="false" type="boolean" default="false" />
 		<cfargument name="CacheKey" required="false" type="com.andreacfm.datax.CacheKey" default="#createObject('component','com.andreacfm.datax.CacheKey').init()#"/>
+		<cfargument name="offset" required="false" type="numeric" default="0" />
 		
 		<cfset variables.cache = arguments.cache />
 		
@@ -46,6 +47,7 @@
 		<cfset setadvsql(advSql) />
 		<cfset setfilters(filters) />
 		<cfset setcacheKey(CacheKey) />
+		<cfset setOffset(offset)>
 		
 		<cfreturn this/>
 	</cffunction>
@@ -93,9 +95,6 @@
 		</cfif>
 		<cfset variables.cacheKey = cacheKey />
 	</cffunction> 
-	<cffunction name="getcacheKey" access="public" returntype="com.andreacfm.datax.CacheKey">
-		<cfreturn variables.cacheKey/>
-	</cffunction>
 	
 	<!---data--->
 	<cffunction name="getdata" access="public" output="false" returntype="struct">
@@ -123,76 +122,4 @@
 		<cfreturn result/>
 	</cffunction>
 	
-
-	<!---orderBy--->
-	<cffunction name="getorderBy" access="public" output="false" returntype="string">
-		<cfreturn variables.orderBy/>
-	</cffunction>
-	<cffunction name="setorderBy" access="public" output="false" returntype="void">
-		<cfargument name="orderBy" type="string" required="true"/>
-		<cfset variables.orderBy = arguments.orderBy/>
-	</cffunction>
-
-	<!---fieldlist--->
-	<cffunction name="getfieldlist" access="public" output="false" returntype="string">
-		<cfreturn variables.fieldlist/>
-	</cffunction>
-	<cffunction name="setfieldlist" access="public" output="false" returntype="void">
-		<cfargument name="fieldlist" type="string" required="true"/>
-		<cfset variables.fieldlist = arguments.fieldlist/>
-	</cffunction>
-
-	<!---maxrows--->
-	<cffunction name="getmaxrows" access="public" output="false" returntype="numeric">
-		<cfreturn variables.maxrows/>
-	</cffunction>
-	<cffunction name="setmaxrows" access="public" output="false" returntype="void">
-		<cfargument name="maxrows" type="numeric" required="true"/>
-		<cfset variables.maxrows = arguments.maxrows/>
-	</cffunction>
-
-	<!---filters--->
-	<cffunction name="getfilters" access="public" output="false" returntype="array">
-		<cfreturn variables.filters/>
-	</cffunction>
-	<cffunction name="setfilters" access="public" output="false" returntype="void">
-		<cfargument name="filters" type="array" required="true"/>
-		<cfset variables.filters = arguments.filters/>
-	</cffunction>
-
-	<!---advsql--->
-	<cffunction name="getadvsql" access="public" output="false" returntype="struct">
-		<cfreturn variables.advsql/>
-	</cffunction>
-	<cffunction name="setadvsql" access="public" output="false" returntype="void">
-		<cfargument name="advsql" type="struct" required="true"/>
-		<cfset variables.advsql = arguments.advsql/>
-	</cffunction>
-
-    <!--- method--->
-    <cffunction name="setmethod" access="public" returntype="void">
-		<cfargument name="method" type="String" required="true"/>
-		<cfset variables.method = method />
-	</cffunction> 
-	<cffunction name="getmethod" access="public" returntype="String">
-		<cfreturn variables.method/>
-	</cffunction>
-
-    <!--- table--->
-   	<cffunction name="settable" access="public" returntype="void">
-		<cfargument name="table" type="String" required="true"/>
-		<cfset variables.table = table />
-	</cffunction> 
-	<cffunction name="gettable" access="public" returntype="String">
-		<cfreturn variables.table/>
-	</cffunction>
-
-	<!--- offset--->
-	<cffunction name="setoffset" access="public" returntype="void">
-		<cfargument name="offset" type="Numeric" required="true"/>
-		<cfset variables.offset = offset />
-	</cffunction> 
-	<cffunction name="getoffset" access="public" returntype="Numeric">
-		<cfreturn variables.offset/>
-	</cffunction>
 </cfcomponent>

@@ -1,5 +1,5 @@
-<!--- 2.5 Alpha 2 Dev 2 (Build 158) --->
-<!--- Last Updated: 2009-10-09 --->
+<!--- 2.2.0.3 (Build 152) --->
+<!--- Last Updated: 2010-08-04 --->
 <!--- Created by Beth Bowden and Steve Bryant 2007-01-14 --->
 <cfcomponent extends="DataMgr" displayname="Data Manager for Oracle" hint="I manage data interactions with the Oracle database. I can be used to handle inserts/updates.">
 
@@ -227,26 +227,30 @@ CREATE OR REPLACE TRIGGER #escape("BI_#arguments.tablename#")# #lf#  before inse
 		<cfset tmpStruct["CF_DataType"] = getCFDataType(Type) />
 		<cfif ListFindNoCase(PrimaryKeys,Field)>
 			<cfset tmpStruct["PrimaryKey"] = true />
+		<cfelse>
+			<cfset tmpStruct["PrimaryKey"] = false />
 		</cfif>
 	  <!--- @@Note: Oracle has no equivalent to autoincrement or  identity  --->
 		<cfset tmpStruct["Increment"] = false>
 		<cfif   Len(MaxLength)
-	        AND isNumeric(MaxLength)
-    	    AND tmpStruct["CF_DataType"] NEQ "CF_SQL_LONGVARCHAR"
-		>
+        AND isNumeric(MaxLength)
+        AND NOT tmpStruct["CF_DataType"] eq "CF_SQL_LONGVARCHAR">
 			<cfset tmpStruct["length"] = MaxLength />
 		</cfif>
 		<cfif isBoolean(Trim(AllowNulls))>
 			<cfset tmpStruct["AllowNulls"] = Trim(AllowNulls)/>
+		<cfelse>
+			<cfset tmpStruct["AllowNulls"] = true />
 		</cfif>
 		<cfset tmpStruct["Precision"] = Precision />
 		<cfset tmpStruct["Scale"]     = Scale />
 		<cfif Len(Default)>
 			<cfset tmpStruct["Default"] = Default />
 		</cfif>
+		<cfset tmpStruct["Special"] = "" />
 
 		<cfif Len(tmpStruct.CF_DataType)>
-			<cfset ArrayAppend(TableData,adjustColumnArgs(tmpStruct))>
+			<cfset ArrayAppend(TableData,StructCopy(tmpStruct))>
 		</cfif>
 	</cfoutput>
 
@@ -411,10 +415,6 @@ CREATE OR REPLACE TRIGGER #escape("BI_#arguments.tablename#")# #lf#  before inse
 	<cfreturn qIndexes>
 </cffunction>
 
-<cffunction name="dbHasOffset" access="private" returntype="boolean" output="no" hint="I indicate if the current database natively supports offsets">
-	<cfreturn true>
-</cffunction>
-
 <cffunction name="getFieldSQL_Has" access="private" returntype="any" output="no">
 	<cfargument name="tablename" type="string" required="yes">
 	<cfargument name="field" type="string" required="yes">
@@ -511,29 +511,18 @@ CREATE OR REPLACE TRIGGER #escape("BI_#arguments.tablename#")# #lf#  before inse
 
 <cffunction name="getMaxRowsPrefix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
 	<cfargument name="maxrows" type="numeric" required="yes">
-	<cfargument name="offset" type="numeric" default="0">
-	
 	<cfreturn " ">
 </cffunction>
 
 <cffunction name="getMaxRowsSuffix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
 	<cfargument name="maxrows" type="numeric" required="yes">
-	<cfargument name="offset" type="numeric" default="0">
-	
 	<cfreturn "">
 </cffunction>
 
 <cffunction name="getMaxRowsWhere" access="public" returntype="string" output="no" hint="I get the SQL in the where statement to limit the number of rows.">
 	<cfargument name="maxrows" type="numeric" required="yes">
-	<cfargument name="offset" type="numeric" default="0">
 	
-	<cfset var result = "rownum <= #arguments.maxrows#">
-	
-	<cfif arguments.offset>
-		<cfset result = "( #result# AND rownum > #arguments.offset# )">
-	</cfif>
-	
-	<cfreturn result>
+	<cfreturn "rownum <= #arguments.maxrows# ">
 </cffunction>
 
 </cfcomponent>

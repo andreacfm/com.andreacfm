@@ -1,6 +1,14 @@
-#############################
 v. 1.0 
-############################
 1) Datax does not support orm. 
 2) Datax does not support external caching just provides CacheKey hooks.
+
+Unit test set up
+------------------
+Create a db called books:
+
+CREATE DATABASE `books`
+	DEFAULT CHARACTER SET utf8
+	DEFAULT COLLATE utf8_general_ci
+	
+Add a dsn called 'books'	
 

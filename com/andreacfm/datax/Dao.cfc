@@ -7,7 +7,7 @@
 	<cffunction name="init" description="initialize the object settings struct" output="false" returntype="com.andreacfm.datax.dao">	
 		<cfargument name="ModelConfig" required="true" type="com.andreacfm.datax.ModelConfig" />
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr" />
-		<cfargument name="EventManager" required="true" type="EventManager.EventManager" />		
+		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />		
 		<cfscript>
 			variables.ModelConfig = arguments.ModelConfig;
 			variables.dataMgr = arguments.dataMgr;
@@ -50,7 +50,6 @@
 				</cfif>
 			
 				<cfcatch type="any">
-				 	<cfset onError(bean,cfcatch) />
 					<cfthrow type="com.andreacfm.datax.createRecordExeption" message="#cfcatch.message#" />						
 				</cfcatch>
 
@@ -67,6 +66,7 @@
 		<cfset var result = getMessage() />
 		<cfset var dataMgr = getDataMgr() />
 		<cfset var instance = bean.getMemento() />
+
 		<cfset var data = {} />
 		<cfset data["#getModelConfig().getpk()#"] = instance[getModelConfig().getpk()] />
 				
@@ -77,7 +77,6 @@
 				<cfset afterDelete(bean) />
 				
 	   			<cfcatch type="any">
-				 	<cfset onError(bean,cfcatch) />
 					<cfthrow type="com.andreacfm.datax.deleteRecordExeption" message="#cfcatch.message#" />						
 				</cfcatch>
 			
@@ -121,7 +120,6 @@
 			</cfif>
 			
 			 <cfcatch type="any">
-			 	<cfset onError(bean,cfcatch) />
 				<cfthrow type="com.andreacfm.datax.updateRecordExeption" message="#cfcatch.message#" />			
 			</cfcatch>
 		
@@ -141,7 +139,7 @@
 	</cffunction>
 
 	<!--- Event Manager--->
-	<cffunction name="getEventManager" access="public" returntype="EventManager.EventManager">
+	<cffunction name="getEventManager" access="public" returntype="com.andreacfm.cfem.EventManager">
 		<cfreturn variables.EventManager/>
 	</cffunction>
 	
@@ -210,27 +208,6 @@
 		<cfargument name="bean" type="com.andreacfm.datax.Model">
 		<cfset var data = { bean = bean} />
 		<cfset getEventManager().dispatchEvent('ModelOnInvalidBean',data) />
-	</cffunction>
-
-	<cffunction name="onError" returntype="void" access="private">
-		<cfargument name="bean" type="com.andreacfm.datax.Model">
-		<cfargument name="error" type="any">
-		<cfset var errorStr = {} />
-		<cfset var data = {} />
-		<cfif structKeyExists(arguments.error,'sql')>
-			<cfset errorStr = {
-				message = error.message,
-				sql = error.sql,
-				type = error.type,
-				ErrorCode = error.errorCode,
-				NativeErrorCode = error.NativeErrorCode,
-				queryError = error.queryError
-			}/>
-		<cfelse>
-			<cfset errorStr = arguments.error />	
-		</cfif>
-		<cfset data = { bean = bean, error = errorStr} />
-		<cfset getEventManager().dispatchEvent(name = 'ModelOnDaoError', data = data ) />
 	</cffunction>
 
 </cfcomponent>

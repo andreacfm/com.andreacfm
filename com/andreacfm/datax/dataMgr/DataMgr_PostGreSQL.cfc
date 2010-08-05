@@ -1,5 +1,5 @@
-<!--- 2.5 Alpha 2 Dev 2 (Build 158) --->
-<!--- Last Updated: 2009-10-09 --->
+<!--- 2.2.0.3 (Build 152) --->
+<!--- Last Updated: 2010-08-04 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
 <cfcomponent extends="DataMgr" displayname="Data Manager for PostGreSQL" hint="I manage data interactions with the PostGreSQL database. I can be used to handle inserts/updates.">
 
@@ -202,13 +202,18 @@
 		</cfif>
 		<cfif isBoolean(NotNull)>
 			<cfset tmpStruct["AllowNulls"] = NotNull>
+		<cfelse>
+			<cfset tmpStruct["AllowNulls"] = true>
 		</cfif>
 		<cfif Len(Default)>
 			<cfset tmpStruct["Default"] = Default>
 		</cfif>
+		<cfset tmpStruct["Precision"] = "">
+		<cfset tmpStruct["Scale"] = "">
+		<cfset tmpStruct["Special"] = "">
 		
 		<cfif Len(tmpStruct.CF_DataType)>
-			<cfset ArrayAppend(TableData,adjustColumnArgs(tmpStruct))>
+			<cfset ArrayAppend(TableData,StructCopy(tmpStruct))>
 		</cfif>
 	</cfoutput>
 	
@@ -283,6 +288,32 @@
 	<cfreturn result>
 </cffunction>
 
+<cffunction name="getNowSQL" access="public" returntype="string" output="no" hint="I return the SQL for the current date/time.">
+	<cfreturn "CURRENT_TIMESTAMP">
+</cffunction>
+
+<cffunction name="getMaxRowsPrefix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
+	<cfargument name="maxrows" type="numeric" required="yes">
+	
+	<cfreturn "">
+</cffunction>
+
+<cffunction name="getMaxRowsSuffix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
+	<cfargument name="maxrows" type="numeric" required="yes">
+	
+	<cfreturn " LIMIT #arguments.maxrows#">
+</cffunction>
+
+<cffunction name="checkTable" access="private" returntype="boolean" output="no" hint="I check to see if the given table exists in the Datamgr.">
+	<cfargument name="tablename" type="string" required="yes">
+	
+	<cfif NOT StructKeyExists(variables.tables,arguments.tablename)>
+		<cfset loadTable(arguments.tablename)>
+	</cfif>
+	
+	<cfreturn true>
+</cffunction>
+
 <cffunction name="getDBTableIndexes" access="public" returntype="query" output="false" hint="">
 	<cfargument name="tablename" type="string" required="yes">
 	<cfargument name="indexname" type="string" required="no">
@@ -324,44 +355,6 @@
 	<cfset qIndexes = runSQL(sql)>
 	
 	<cfreturn qIndexes>
-</cffunction>
-
-<cffunction name="getNowSQL" access="public" returntype="string" output="no" hint="I return the SQL for the current date/time.">
-	<cfreturn "CURRENT_TIMESTAMP">
-</cffunction>
-
-<cffunction name="getMaxRowsPrefix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
-	<cfargument name="maxrows" type="numeric" required="yes">
-	<cfargument name="offset" type="numeric" default="0">
-	
-	<cfreturn "">
-</cffunction>
-
-<cffunction name="getMaxRowsSuffix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
-	<cfargument name="maxrows" type="numeric" required="yes">
-	<cfargument name="offset" type="numeric" default="0">
-	
-	<cfset var result = " LIMIT #arguments.maxrows#">
-	
-	<cfif arguments.offset>
-		<cfset result = "#result# OFFSET #arguments.offset#">
-	</cfif>
-	
-	<cfreturn result>
-</cffunction>
-
-<cffunction name="checkTable" access="private" returntype="boolean" output="no" hint="I check to see if the given table exists in the Datamgr.">
-	<cfargument name="tablename" type="string" required="yes">
-	
-	<cfif NOT StructKeyExists(variables.tables,arguments.tablename)>
-		<cfset loadTable(arguments.tablename)>
-	</cfif>
-	
-	<cfreturn true>
-</cffunction>
-
-<cffunction name="dbHasOffset" access="private" returntype="boolean" output="no" hint="I indicate if the current database natively supports offsets">
-	<cfreturn true>
 </cffunction>
 
 <cffunction name="getFieldSQL_Has" access="private" returntype="any" output="no">

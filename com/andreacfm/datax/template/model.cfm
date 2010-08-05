@@ -1,5 +1,5 @@
 &lt;cfcomponent
-	extends="com.andreacfm.datax.Model"&gt;
+	accessors="true" extends="com.andreacfm.datax.Model"&gt;
 	<cfloop from="1" to="#arraylen(properties)#" index="i">
 	<cfoutput>&lt;cfproperty name="#properties[i].name#" type="#properties[i].type#" /&gt;</cfoutput></cfloop>
 	<cfloop from="1" to="#arraylen(composites)#" index="i">
@@ -7,12 +7,11 @@
 	&lt;cfproperty name="#composites[i].arrayname#" type="array" /&gt;</cfoutput></cfloop>
 
 	&lt;cfscript&gt;
-	variables.instance['loaded'] = {};
 	<cfloop from="1" to="#arraylen(properties)#" index="i">
-	<cfoutput><cfif properties[i].default><cfif properties[i].type eq 'string'>variables.instance['#properties[i].name#'] = "#properties[i].value#";<cfelse>variables.instance['#properties[i].name#'] = #properties[i].value#;</cfif></cfif></cfoutput></cfloop>
+	<cfoutput><cfif properties[i].default><cfif properties[i].type eq 'string'>variables['#properties[i].name#'] = "#properties[i].value#";<cfelse>variables['#properties[i].name#'] = #properties[i].value#;</cfif></cfif></cfoutput></cfloop>
 	<cfloop from="1" to="#arraylen(composites)#" index="i"><cfoutput>
-	variables.instance['#composites[i].listname#'] = "";
-	variables.instance['#composites[i].arrayname#'] = createObject('java','java.util.ArrayList').init();</cfoutput></cfloop>
+	variables['#composites[i].listname#'] = "";
+	variables['#composites[i].arrayname#'] = createObject('java','java.util.ArrayList').init();</cfoutput></cfloop>
 
 	&lt;/cfscript&gt;
 	
@@ -28,23 +27,6 @@
 	
 	&lt;/cffunction&gt;
 	
-	&lt;!-------------------------------------- Public -------------------------------------------------->
-<cfloop from="1" to="#arraylen(properties)#" index="i"><cfoutput>
-	<!--- #properties[i].name# --->
-	&lt;cffunction name="get#properties[i].name#" output="false" returntype="#properties[i].type#" &gt;
-		&lt;cfscript&gt;	
-		return variables.#properties[i].name#;
-		&lt;/cfscript&gt;
-	&lt;/cffunction&gt;	
-	
-	&lt;cffunction name="set#properties[i].name#" output="false" returntype="void" &gt;
-		&lt;cfargument name="#properties[i].name#" type="#properties[i].type#" required="true"/>
-		&lt;cfscript&gt;	
-		variables.#properties[i].name# = arguments.#properties[i].name#;
-		&lt;/cfscript&gt;
-	&lt;/cffunction&gt;	
-</cfoutput>
-</cfloop>
 &lt;!-------------------------------------- Composite -------------------------------------------------->
 <cfloop from="1" to="#arraylen(composites)#" index="i"><cfoutput>
 	&lt;!--- #composites[i].listname# --->
@@ -71,13 +53,13 @@
 			var advsql = structNew();	
 			var list = "";
 			<cfif composites[i].ismanytomany>
-				if(listlen(get#composites[i].listname#()) and not structKeyExists(variables.instance['loaded'],'#composites[i].arrayname#') or arguments.refresh){
+				if(listlen(get#composites[i].listname#()) and not structKeyExists(variables['loaded'],'#composites[i].arrayname#') or arguments.refresh){
 					list = get#composites[i].listname#();
 					advsql.where = "#composites[i].field# IN (##list##)";
 					set#composites[i].arrayname#(getBeanFactory().getBean('dsManager').getService('#composites[i].serviceid#').read( data = arguments.data, filters = arguments.filters, advsql = advsql, cache = this.cache));
 				};			
 			<cfelse>
-				if(len(get#composites[i].joinField#()) and not structKeyExists(variables.instance['loaded'],'#composites[i].arrayname#') or arguments.refresh){
+				if(len(get#composites[i].joinField#()) and not structKeyExists(variables['loaded'],'#composites[i].arrayname#') or arguments.refresh){
 					list = get#composites[i].joinField#();
 					advsql.where = "#composites[i].joinField# IN (##list##)";
 					set#composites[i].arrayname#(getBeanFactory().getBean('dsManager').getService('#composites[i].serviceid#').read( data = arguments.data, filters = arguments.filters, advsql = advsql, cache = this.cache));
@@ -94,7 +76,7 @@
 		&lt;cfargument name="#composites[i].arrayname#" type="array" required="true"/>
 		&lt;cfscript&gt;	
 		variables.#composites[i].arrayname# = arguments.#composites[i].arrayname#;
-		variables.instance['loaded']['#composites[i].arrayname#'] = 'loaded';
+		variables['loaded']['#composites[i].arrayname#'] = 'loaded';
 		&lt;/cfscript&gt;
 	&lt;/cffunction&gt;	
 

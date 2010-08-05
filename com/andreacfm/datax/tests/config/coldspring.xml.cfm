@@ -21,7 +21,7 @@
       
     </bean>
     
-    <bean id="EventManager" class="EventManager.EventManager">
+    <bean id="EventManager" class="com.andreacfm.cfem.EventManager">
         <constructor-arg name="events">
             <list>
                 <map>
@@ -151,6 +151,10 @@
         <constructor-arg name="dataMgr">
             <ref bean="dataMgr"/>
         </constructor-arg>	
+    	
+    	<constructor-arg name="testmode">
+    		<value>true</value>
+    	</constructor-arg>
         
         <constructor-arg name="config">
             <list>

@@ -1,9 +1,8 @@
 <cfcomponent output="false" name="Data Bean Factory"
 	 hint="Data Bean Factory" 
-	 extends="com.andreacfm.Object"> 
+	 extends="com.andreacfm.datax.Base"> 
 	
 	<cfscript>
-	variables.instance = structNew();
 	variables.beans = structNew();
 	</cfscript>		
 
@@ -11,7 +10,7 @@
 	<cffunction name="init" description="initialize the object" output="false" returntype="com.andreacfm.datax.dbFactory">	
 		<cfargument name="config" required="false" type="array" default="#arraynew(1)#"/>
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr"/>
-		<cfargument name="EventManager" required="true" type="EventManager.EventManager" />	
+		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />	
 		<cfargument name="testMode" required="false" type="boolean" default="false"/>
 		<!--- Only for beans. Daos and validators are always autowired --->
 		<cfargument name="autowire" required="false" type="Boolean" default="false"/>
@@ -92,7 +91,7 @@
 	<!---	makeBeans=	--->
 	<cffunction name="makeBeans" output="false" returntype="void">
 
-		<cfset var config = variables.instance['beans'] />
+		<cfset var config = variables['beans'] />
 
 		<cfscript>			
 			try{
@@ -113,7 +112,7 @@
 	<cffunction name="makeBean" output="false" returntype="void">
 		<cfargument name="beanName" required="true">
 
-		<cfset var config = variables.instance['beans'] />
+		<cfset var config = variables['beans'] />
 
 		<cfscript>			
 			try{
@@ -134,7 +133,7 @@
 	<cffunction name="writeBean" output="false" returntype="void">
 		<cfargument name="beanName" required="true" type="string" />
 		
-		<cfset var beanConfig = variables.instance['beans'][arguments.beanName].ModelConfig />
+		<cfset var beanConfig = variables['beans'][arguments.beanName].ModelConfig />
 		<cfset var beanPath = "/" & replace(beanConfig.getbeanClass(),".","/","All") & ".cfc" />
 		<cfset var dmTable = getDataMgr().getTableData(beanConfig.getTable()) />
 		<cfset var dmConf = xmlParse(fileRead(expandPath("/com/andreacfm/datax/conf/dm-map.cfm"))) />
@@ -202,9 +201,6 @@
 					<cfset temp = xmlSearch(dmConf,"//data-values/cf-data-type[@name='#property.type#']") />
 					<cfset property.value = temp[1].XmlText/>	
 				</cfif>
-				<cfif fields[i].special neq "">
-					<cfset property.default = false />				
-				</cfif>
 				<cfset arrayAppend(properties,property) />						 	
 			</cfif>
 		</cfloop>
@@ -257,7 +253,7 @@
 				
 			}
 			catch(any e){
-					throw('Error loading the data bean #bean.ModelConfig.getId()#. Object with class #bean.ModelConfig.getBeanClass()# cannot been created.','com.andreacfm.datax.dbFactory.beanCreationTestExeption','method validateBean');		
+				throw('Error loading the data bean #bean.ModelConfig.getId()#. Object with class #bean.ModelConfig.getBeanClass()# cannot been created.','com.andreacfm.datax.dbFactory.beanCreationTestExeption','method validateBean');		
 			}
 		}
 						
@@ -307,7 +303,7 @@
 		<cfargument name="id" type="string" required="true" />
 		<cfscript>
 			
-			var config = variables.instance['beans']['#id#'];			
+			var config = variables['beans']['#id#'];			
 			var dao = "";
 
 			if(not structkeyExists(config,'daoObject')){
@@ -319,10 +315,10 @@
 				if(this.autowire){
 					getBeanFactory().getBean('beanInjector').autowire(dao);
 				}
-				variables.instance['beans']['#config.ModelConfig.getid()#']['daoObject'] = dao;
+				variables['beans']['#config.ModelConfig.getid()#']['daoObject'] = dao;
 			}
 			
-			return variables.instance['beans']['#config.ModelConfig.getid()#']['daoObject'];		
+			return variables['beans']['#config.ModelConfig.getid()#']['daoObject'];		
 		</cfscript>
 	</cffunction>
 
@@ -331,7 +327,7 @@
 		<cfargument name="id" type="string" required="true" />
 		<cfscript>
 					
-			var config = variables.instance['beans']['#id#'];			
+			var config = variables['beans']['#id#'];			
 			var validator = "";
 			
 			if(not structkeyExists(config,'validatorObject')){
@@ -343,11 +339,11 @@
 				if(this.autowire){
 					getBeanFactory().getBean('beanInjector').autowire(validator);
 				}		
-				variables.instance['beans']['#config.ModelConfig.getid()#']['validatorObject'] = validator;
+				variables['beans']['#config.ModelConfig.getid()#']['validatorObject'] = validator;
 
 			}
 			
-			return variables.instance['beans']['#config.ModelConfig.getid()#']['validatorObject'];		
+			return variables['beans']['#config.ModelConfig.getid()#']['validatorObject'];		
 		</cfscript>
 	</cffunction>
 
@@ -359,23 +355,23 @@
 		
 		var bean = arguments.str;
 
-		variables.instance['beans']['#bean.ModelConfig.getid()#'] = structNew();
+		variables['beans']['#bean.ModelConfig.getid()#'] = structNew();
 		
-		variables.instance['beans']['#bean.ModelConfig.getid()#']['ModelConfig'] = bean.ModelConfig;	
+		variables['beans']['#bean.ModelConfig.getid()#']['ModelConfig'] = bean.ModelConfig;	
 		
 		if(structkeyExists(bean,'dao')){
 			dao = bean.dao;
 		}else{
 			dao = 'com.andreacfm.datax.Dao';				
 		}			
-		variables.instance['beans']['#bean.ModelConfig.getid()#']['dao'] = dao;		
+		variables['beans']['#bean.ModelConfig.getid()#']['dao'] = dao;		
 
 		if(structkeyExists(bean,'validator')){
 			validator = bean.validator;
 		}else{
 			validator = 'com.andreacfm.validate.Validator';				
 		}			
-		variables.instance['beans']['#bean.ModelConfig.getid()#']['validator'] = validator;		
+		variables['beans']['#bean.ModelConfig.getid()#']['validator'] = validator;		
 		
 				
 		</cfscript>
@@ -391,7 +387,7 @@
 	</cffunction>
 
 	<!--- EventManager--->
-    <cffunction name="getEventManager" access="public" returntype="EventManager.EventManager">
+    <cffunction name="getEventManager" access="public" returntype="com.andreacfm.cfem.EventManager">
     	<cfreturn variables.EventManager/>
     </cffunction>
 	

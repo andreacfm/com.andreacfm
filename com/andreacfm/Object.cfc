@@ -1,6 +1,4 @@
-﻿<cfcomponent 
-	output="false"
-	name="Base class.">
+﻿<cfcomponent output="false" name="Base class.">
 	
 	<!---private instance variables--->
 	<cfset variables.instance = {} />
@@ -86,13 +84,5 @@
 		<cfreturn result />
 	</cffunction>
 
-	<!---throw--->
-	<cffunction name="Throw" returntype="void" output="no" access="public" >   
-		<cfargument name="Message" type="string" required="false" default="" />
-		<cfargument name="type" type="string" required="false" default="any" />  
-		<cfargument name="extendedinfo" type="string" required="false" default="" />  
-		<cfargument name="errorcode" type="string" required="false" default="001" />  		
-		<cfthrow message="#arguments.Message#" type="#arguments.type#" extendedinfo="#Arguments.errorcode#" errorcode="#arguments.errorcode#"/> 
-	</cffunction> 
 
 </cfcomponent>

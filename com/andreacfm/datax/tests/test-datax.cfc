@@ -1,17 +1,17 @@
 <cfcomponent displayname="core-bean" extends="mxunit.framework.TestCase">
 
 	<cffunction name="setUp">
-		<cfset beanFactory = CreateObject('component','com.andreacfm.util.beanutils.DynamicXmlBeanFactory').init()/>
-		<cfset beanFactory.loadBeansFromDynamicXmlFile('/com/andreacfm/datax/tests/config/coldspring.xml.cfm') />		
+		<cfset variables.beanfactory = CreateObject('component','com.andreacfm.util.beanutils.DynamicXmlBeanFactory').init()/>
+		<cfset variables.beanfactory.loadBeansFromDynamicXmlFile('/com/andreacfm/datax/tests/config/coldspring.xml.cfm') />		
 	</cffunction>
 	
 	<cffunction name="testDataMgr" returntype="void" hint="test dataMgr bean creation">
-		<cfset var dataMgr = beanFactory.getBean('dataMgr') />
+		<cfset var dataMgr = variables.beanfactory.getBean('dataMgr') />
 		<cfset assertTrue(isInstanceOf(dataMgr,'com.andreacfm.datax.dataMgr.dataMgr'),"Data mgr not loaded correctly")>		
 	</cffunction>
 
 	<cffunction name="testgetBeanFromDbFactory" returntype="void" hint="get bean instances from dbFactory">
-		<cfset var dbfactory = beanFactory.getbean('dbFactory') />
+		<cfset var dbfactory = variables.beanfactory.getbean('dbFactory') />
 		<cfset var bookbean = dbFactory.getBean('book') />	
 		<cfset var authorbean = dbFactory.getBean('author') />
 		
@@ -28,7 +28,7 @@
 	</cffunction>
 	
 	<cffunction name="testDataServiceManager" returntype="void" hint="Check the object returned by the dsmanager in base of the differents configuration">
-		<cfset var dsM = beanFactory.getbean('dsManager') />
+		<cfset var dsM = variables.beanfactory.getbean('dsManager') />
 		<cfset var bookService = dsM.getService('bookService') />
 		<cfset var authorService = dsM.getService('authorService') />
 		
@@ -45,11 +45,11 @@
 	</cffunction>
 	
 	<cffunction name="testinsert" returntype="void" hint="Test insert operation">
-		<cfset var bookService = beanFactory.getBean('dsManager').getService('bookService') />
-		<cfset var dbfactory = beanFactory.getbean('dbFactory') />
+		<cfset var bookService = variables.beanfactory.getBean('dsManager').getService('bookService') />
+		<cfset var dbfactory = variables.beanfactory.getbean('dbFactory') />
 		<cfset var book = dbFactory.getBean('book') />
 		
-		<cfset dm = beanFactory.getBean('dataMgr') />
+		<cfset dm = variables.beanfactory.getBean('dataMgr') />
 		
 		<cftransaction action="begin"> 
 			<!--- craete --->
@@ -64,8 +64,8 @@
 	</cffunction>		
 	
 	<cffunction name="testupdate" returntype="void" hint="Test update operation">
-		<cfset var bookService = beanFactory.getBean('dsManager').getService('bookService') />
-		<cfset var dbfactory = beanFactory.getbean('dbFactory') />
+		<cfset var bookService = variables.beanfactory.getBean('dsManager').getService('bookService') />
+		<cfset var dbfactory = variables.beanfactory.getbean('dbFactory') />
 		<cfset var book = dbFactory.getBean('book') />
 		<cfset var newBook = "" />
 		<cfset var result = "" />
@@ -91,8 +91,8 @@
 	</cffunction>		
 	
 	<cffunction name="testdelete" returntype="void" hint="Test delete operations">
-		<cfset var bookService = beanFactory.getBean('dsManager').getService('bookService') />
-		<cfset var dbfactory = beanFactory.getbean('dbFactory') />
+		<cfset var bookService = variables.beanfactory.getBean('dsManager').getService('bookService') />
+		<cfset var dbfactory = variables.beanfactory.getbean('dbFactory') />
 		<cfset var book = dbFactory.getBean('book') />
 		<cfset var result =  ""/>	
 		<cfset var q = "" />
@@ -102,7 +102,7 @@
 			<!--- craete --->
 			<cfset book.setBookName('newBook') />
 			<cfset result = book.create() />
-
+						
 			<!--- update the bean --->
 			<cfset book.setBookId(result.getData()) />
 			
@@ -120,7 +120,7 @@
 	</cffunction>		
 
 	<cffunction name="testMakeBeans" returntype="void" hint="test the physical bean generation">
-		<cfset var dbfactory = beanFactory.getbean('dbFactory') />
+		<cfset var dbfactory = variables.beanfactory.getbean('dbFactory') />
 		<cfset var book = "" />
 		<cfset var author = "" />
 		<!--- make one bean --->
@@ -136,8 +136,8 @@
 	</cffunction>
 
 	<cffunction name="testlazyLoading" returntype="void" hint="test the ability to load composite data only on demand">
-		<cfset var bookService = beanFactory.getBean('dsManager').getService('bookService') />
-		<cfset var dbfactory = beanFactory.getbean('dbFactory') />
+		<cfset var bookService = variables.beanfactory.getBean('dsManager').getService('bookService') />
+		<cfset var dbfactory = variables.beanfactory.getbean('dbFactory') />
 		<cfset var authors = "" />
 		<cfset var authorsHash = "" />
 		<cfset var reauthors = "" />
@@ -162,13 +162,13 @@
 		<cfset book = bookService.readById(result.getData(),true) />
 		
 		<!--- load check must be empty --->
-		<cfset assertTrue(structIsEmpty(book.loaded),"Check load struct is not empty or is not a struct") />
+		<cfset assertTrue(structIsEmpty(book.getLoad()),"Check load struct is not empty or is not a struct") />
 		
 		<!--- load a lazy relation --->
 		<cfset authors = book.getAuthorArray() />
 
 		<!--- refresh the load Check var--->
-		<cfset loadCheck = book.loaded />
+		<cfset loadCheck = book.getLoad() />
 		
 		<cfset assertTrue(not structIsEmpty(loadCheck),"LoadCheck has not been updated from the loading operation. Still empty") />
 		<cfset assertTrue(structKeyExists(loadCheck,'authorarray'),"Loadcheck do not show the right label") />

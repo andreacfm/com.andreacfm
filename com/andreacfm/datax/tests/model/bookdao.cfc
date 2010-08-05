@@ -1,3 +1,3 @@
-<cfcomponent  output="false" extends=com.andreacfm.datax.Dao>
+<cfcomponent  output="false" extends="com.andreacfm.datax.Dao">
 
 </cfcomponent>		

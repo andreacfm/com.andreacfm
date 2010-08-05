@@ -2,10 +2,9 @@
 	output="false"
 	name="Data Service Manager"	 
 	hint="Data Service Class"
-	extends="com.andreacfm.Object">
+	extends="com.andreacfm.datax.Base">
 	
 	<cfscript>
-	variables.instance = structNew();
 	variables.services = structNew();
 	</cfscript>		
 
@@ -15,7 +14,7 @@
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr"/>	
 		<cfargument name="config" required="false" type="array" default="#arraynew(1)#"/>
 		<cfargument name="autowire" required="false" type="Boolean" default="false"/>
-		<cfargument name="EventManager" required="true" type="EventManager.EventManager" />	
+		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />	
 		
 		<cfscript>
 			var service = "" ;
@@ -109,7 +108,7 @@
 	</cffunction>
 
 	<!--- EventManager--->    
-    <cffunction name="getEventManager" access="public" returntype="EventManager.EventManager">
+    <cffunction name="getEventManager" access="public" returntype="com.andreacfm.cfem.EventManager">
     	<cfreturn variables.EventManager/>
     </cffunction>
 
@@ -189,13 +188,13 @@
 		<cfargument name="str" required="true" type="struct" />
 		<cfscript>
 		var service = arguments.str;
-		variables.instance['services']['#service.id#'] = structNew();
-		variables.instance['services']['#service.id#']['modelConfig'] = service.modelConfig;		
+		variables['services']['#service.id#'] = structNew();
+		variables['services']['#service.id#']['modelConfig'] = service.modelConfig;		
 		if(structkeyExists(service,'decorator')){
-			variables.instance['services']['#service.id#']['decorator'] = service.decorator;
+			variables['services']['#service.id#']['decorator'] = service.decorator;
 		}
 		if(structkeyExists(service,'gateway')){
-			variables.instance['services']['#service.id#']['gateway'] = service.gateway;
+			variables['services']['#service.id#']['gateway'] = service.gateway;
 		}
 		</cfscript>
 	</cffunction>

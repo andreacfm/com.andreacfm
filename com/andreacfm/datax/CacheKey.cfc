@@ -1,5 +1,5 @@
 ﻿<cfcomponent 
-	extends="com.andreacfm.Object">
+	extends="com.andreacfm.datax.Base">
 
 	<cfset variables.hasKey = false />
 	

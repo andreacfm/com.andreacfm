@@ -1,5 +1,5 @@
-<!--- 2.5 Alpha 2 Dev 2 (Build 158) --->
-<!--- Last Updated: 2009-10-09 --->
+<!--- 2.2.0.3 (Build 152) --->
+<!--- Last Updated: 2010-08-04 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
 <cfcomponent extends="DataMgr" displayname="Data Manager for MySQL" hint="I manage data interactions with the MySQL database. I can be used to handle inserts/updates.">
 
@@ -22,7 +22,7 @@
 	<cfset var type = getDBDataType(sField.CF_DataType)>
 	<cfset var result = "">
 	
-	<cfsavecontent variable="result"><cfoutput>#escape(sField.ColumnName)# #type#<cfif isStringType(type)>(#sField.Length#)<cfelseif getTypeOfCFType(sField.CF_DataType) EQ "numeric" AND StructKeyExists(sField,"scale") AND StructKeyExists(sField,"precision")>(#Val(sField.precision)#,#Val(sField.scale)#)</cfif><cfif sField.Increment> AUTO_INCREMENT</cfif><cfif Len(Trim(sField.Default)) AND sField.Default NEQ getNowSQL() AND NOT sField.Default CONTAINS "0000-00-00"> DEFAULT #sField.Default#</cfif> <cfif sField.PrimaryKey OR NOT sField.AllowNulls>NOT </cfif>NULL</cfoutput></cfsavecontent>
+	<cfsavecontent variable="result"><cfoutput>#escape(sField.ColumnName)# #type#<cfif isStringType(type)>(#sField.Length#)<cfelseif getTypeOfCFType(sField.CF_DataType) EQ "numeric" AND StructKeyExists(sField,"scale") AND StructKeyExists(sField,"precision")>(#Val(sField.precision)#,#Val(sField.scale)#)</cfif><cfif sField.Increment> AUTO_INCREMENT</cfif><cfif Len(Trim(sField.Default))> DEFAULT #sField.Default#</cfif> <cfif sField.PrimaryKey OR NOT sField.AllowNulls>NOT </cfif>NULL</cfoutput></cfsavecontent>
 	
 	<cfreturn result>
 </cffunction>
@@ -172,13 +172,18 @@
 		</cfif>
 		<cfif NULL eq "Yes">
 			<cfset tmpStruct["AllowNulls"] = true>
+		<cfelse>
+			<cfset tmpStruct["AllowNulls"] = false>
 		</cfif>
 		<cfif Len(Default)>
 			<cfset tmpStruct["Default"] = Default>
 		</cfif>
+		<cfset tmpStruct["Precision"] = "">
+		<cfset tmpStruct["Scale"] = "">
+		<cfset tmpStruct["Special"] = "">
 		
 		<cfif Len(tmpStruct.CF_DataType)>
-			<cfset ArrayAppend(TableData,adjustColumnArgs(tmpStruct))>
+			<cfset ArrayAppend(TableData,StructCopy(tmpStruct))>
 		</cfif>
 	</cfoutput>
 	
@@ -239,7 +244,7 @@
 		<cfcase value="CF_SQL_DECIMAL"><cfset result = "decimal"></cfcase>
 		<cfcase value="CF_SQL_DOUBLE"><cfset result = "double"></cfcase>
 		<cfcase value="CF_SQL_FLOAT"><cfset result = "float"></cfcase>
-		<cfcase value="CF_SQL_IDSTAMP"><cfset result = "uniqueidentifier"></cfcase>
+		<cfcase value="CF_SQL_IDSTAMP"><cfset result = "varchar"></cfcase>
 		<cfcase value="CF_SQL_INTEGER"><cfset result = "int"></cfcase>
 		<cfcase value="CF_SQL_LONGVARCHAR"><cfset result = "text"></cfcase>
 		<cfcase value="CF_SQL_MONEY"><cfset result = "money"></cfcase>
@@ -258,22 +263,14 @@
 
 <cffunction name="getMaxRowsPrefix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
 	<cfargument name="maxrows" type="numeric" required="yes">
-	<cfargument name="offset" type="numeric" default="0">
 	
 	<cfreturn "">
 </cffunction>
 
 <cffunction name="getMaxRowsSuffix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
 	<cfargument name="maxrows" type="numeric" required="yes">
-	<cfargument name="offset" type="numeric" default="0">
 	
-	<cfset var result = " LIMIT #arguments.maxrows#">
-	
-	<cfif arguments.offset>
-		<cfset result = "#result# OFFSET #arguments.offset#">
-	</cfif>
-	
-	<cfreturn result>
+	<cfreturn " LIMIT #arguments.maxrows#">
 </cffunction>
 
 <cffunction name="getFieldSQL_Has" access="private" returntype="any" output="no">
@@ -330,10 +327,6 @@
 		<cfset loadTable(arguments.tablename)>
 	</cfif>
 	
-	<cfreturn true>
-</cffunction>
-
-<cffunction name="dbHasOffset" access="private" returntype="boolean" output="no">
 	<cfreturn true>
 </cffunction>
 

@@ -1,5 +1,5 @@
-<!--- 2.5 Alpha 2 Dev 2 (Build 158) --->
-<!--- Last Updated: 2009-10-09 --->
+<!--- 2.2.0.3 (Build 152) --->
+<!--- Last Updated: 2010-08-04 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
 <cfcomponent extends="DataMgr" displayname="Data Manager for MS SQL Server" hint="I manage data interactions with the Derby database. I can be used to handle inserts/updates.">
 
@@ -183,9 +183,10 @@
 		<cfset sTemp["AllowNulls"] = Is_Nullable>
 		<!--- <cfset sTemp["Precision"] = Decimal_Digits>
 		<cfset sTemp["Scale"] = Decimal_Digits> --->
+		<cfset sTemp["Special"] = "">
 		
 		<cfif Len(sTemp.CF_DataType)>
-			<cfset ArrayAppend(TableData,adjustColumnArgs(sTemp))>
+			<cfset ArrayAppend(TableData,StructCopy(sTemp))>
 		</cfif>
 	</cfoutput>
 	
@@ -262,7 +263,6 @@
 
 <cffunction name="getMaxRowsPrefix" access="public" returntype="string" output="no" hint="I get the SQL before the field list in the select statement to limit the number of rows.">
 	<cfargument name="maxrows" type="numeric" required="yes">
-	<cfargument name="offset" type="numeric" default="0">
 	
 	<cfreturn "">
 </cffunction>
@@ -271,37 +271,6 @@
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfreturn isDate(arguments.value)><!---  AND Year(arguments.value) GTE 1753 AND arguments.value LT CreateDate(2079,6,7) --->
-</cffunction>
-
-<cffunction name="runSQLArray" access="public" returntype="any" output="no" hint="I run the given array representing SQL code (structures in the array represent params).">
-	<cfargument name="sqlarray" type="array" required="yes">
-	
-	<cfset var qQuery = 0>
-	<cfset var ii = 0>
-	<cfset var temp = "">
-	<cfset var aSQL = cleanSQLArray(arguments.sqlarray)>
-	<cfset var sQuery = {name="qQuery",datasource=variables.datasource}>
-	
-	<cfif StructKeyExists(variables,"username") AND StructKeyExists(variables,"password")>
-		<cfset sQuery["username"] = "#variables.username#">
-		<cfset sQuery["password"] = "#variables.password#">
-	</cfif>
-	<cfif variables.SmartCache>
-		<cfset sQuery["cachedafter"] = "#variables.CacheDate#">
-	</cfif>
-	<cfif StructKeyExists(arguments,"maxrows") AND isNumeric(arguments.maxrows) AND arguments.maxrows GT 0>
-		<cfif NOT StructKeyExists(arguments,"offset")>
-			<cfset arguments.offset = 0>
-		</cfif>
-		<cfset sQuery["maxrows"] = arguments.maxrows + arguments.offset>
-	</cfif>
-	
-	<cfquery attributeCollection="#sQuery#"><cfloop index="ii" from="1" to="#ArrayLen(aSQL)#" step="1"><cfif IsSimpleValue(aSQL[ii])><cfset temp = aSQL[ii]>#Trim(DMPreserveSingleQuotes(temp))#<cfelseif IsStruct(aSQL[ii])><cfset aSQL[ii] = queryparam(argumentCollection=aSQL[ii])><cfswitch expression="#aSQL[ii].cfsqltype#"><cfcase value="CF_SQL_BIT">#getBooleanSqlValue(aSQL[ii].value)#</cfcase><cfcase value="CF_SQL_DATE,CF_SQL_DATETIME">#CreateODBCDateTime(aSQL[ii].value)#</cfcase><cfdefaultcase><!--- <cfif ListFindNoCase(variables.dectypes,aSQL[ii].cfsqltype)>#Val(aSQL[ii].value)#<cfelse> ---><cfqueryparam value="#aSQL[ii].value#" cfsqltype="#aSQL[ii].cfsqltype#" maxlength="#aSQL[ii].maxlength#" scale="#aSQL[ii].scale#" null="#aSQL[ii].null#" list="#aSQL[ii].list#" separator="#aSQL[ii].separator#"><!--- </cfif> ---></cfdefaultcase></cfswitch></cfif> </cfloop></cfquery>
-	
-	<cfif IsDefined("qQuery")>
-		<cfreturn qQuery>
-	</cfif>
-	
 </cffunction>
 
 <cffunction name="checkTable" access="private" returntype="boolean" output="no" hint="I check to see if the given table exists in the Datamgr.">

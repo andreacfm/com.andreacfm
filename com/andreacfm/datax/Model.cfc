@@ -1,13 +1,14 @@
-<cfcomponent
- extends="com.andreacfm.Object"
- implements="com.andreacfm.validate.IValidatable">
+<cfcomponent 
+	implements="com.andreacfm.validate.IValidatable" 
+	extends="com.andreacfm.datax.Base">
 
 	<cfset variables.errors = createObject('java','java.util.ArrayList').init() />
 	<cfset variables.isAlwaysValid = false />
+	<cfset variables['loaded'] = {} />
 	
 	<!--- 
-		Set to true by the gateway if generated in a sql context where caching wa set to true.
-		Does not gurantee that data has been cached.
+		Set to true by the gateway if generated in a sql context where caching was set to true.
+		Does not guarantee that data has been cached.
 		Used to pass the cache value down to the composite chain.
 	--->
 	<cfset this.cache = false />
@@ -64,6 +65,37 @@
 		</cfscript>	
 	</cffunction>
 
+	<!---	dao	--->
+	<cffunction name="getdao" access="public" output="false" returntype="com.andreacfm.datax.Dao">
+		<cfreturn variables.dao/>
+	</cffunction>
+	<cffunction name="setdao" access="public" output="false" returntype="void">
+		<cfargument name="dao" type="com.andreacfm.datax.dao" required="true"/>
+		<cfset variables.dao = arguments.dao/>
+	</cffunction>
+
+	<!----	beanFactory	--->
+	<cffunction name="getBeanFactory" access="public" returntype="any" output="false" hint="Return the beanFactory instance">
+		<cfreturn variables.beanFactory />
+	</cffunction>		
+	<cffunction name="setBeanFactory" access="public" returntype="void" output="false" hint="Inject a beanFactory reference.">
+		<cfargument name="beanFactory" type="coldspring.beans.BeanFactory" required="true" />
+		<cfset variables.beanFactory = arguments.beanFactory />
+	</cffunction>
+
+	<!--- 
+	getLoad
+	 --->
+	<cffunction name="getLoad" returntype="Struct" output="false" access="public" hint="Return the internal struct where loaded resources are flagged ">
+		<cfscript>
+		return variables.loaded;
+		</cfscript>
+	</cffunction>
+	
+	<!--- 
+	implements IValidatable
+	 --->
+	
 	<!---	validate	--->
 	<cffunction name="validate" output="false" returntype="void" hint="Validate method called on an injected validator bean">
 		<cfargument name="context" required="false" type="string" default="" />		
@@ -133,22 +165,5 @@
 		<cfset variables.validator = arguments.validator/>
 	</cffunction>
 
-	<!---	dao	--->
-	<cffunction name="getdao" access="public" output="false" returntype="com.andreacfm.datax.Dao">
-		<cfreturn variables.dao/>
-	</cffunction>
-	<cffunction name="setdao" access="public" output="false" returntype="void">
-		<cfargument name="dao" type="com.andreacfm.datax.dao" required="true"/>
-		<cfset variables.dao = arguments.dao/>
-	</cffunction>
-
-	<!----	beanFactory	--->
-	<cffunction name="getBeanFactory" access="public" returntype="any" output="false" hint="Return the beanFactory instance">
-		<cfreturn variables.beanFactory />
-	</cffunction>		
-	<cffunction name="setBeanFactory" access="public" returntype="void" output="false" hint="Inject a beanFactory reference.">
-		<cfargument name="beanFactory" type="coldspring.beans.BeanFactory" required="true" />
-		<cfset variables.beanFactory = arguments.beanFactory />
-	</cffunction>
 
 </cfcomponent>

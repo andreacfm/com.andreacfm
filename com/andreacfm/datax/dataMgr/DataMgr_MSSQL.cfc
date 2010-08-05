@@ -1,5 +1,5 @@
-<!--- 2.5 Alpha 2 Dev 2 (Build 158) --->
-<!--- Last Updated: 2009-10-09 --->
+<!--- 2.2.0.3 (Build 152) --->
+<!--- Last Updated: 2010-08-04 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
 <cfcomponent extends="DataMgr" displayname="Data Manager for MS SQL Server" hint="I manage data interactions with the MS SQL Server database. I can be used to handle inserts/updates.">
 
@@ -67,40 +67,14 @@
 	
 	<cfset var colname = "">
 	<cfset var result = "">
-	<cfset var aArgs = ArrayNew(1)>
 	
 	<cfloop index="colname" list="#arguments.fields#">
-		<cfif ArrayLen(aArgs)>
-			<cfset ArrayAppend(aArgs,arguments.delimeter)>
+		<cfif Len(result)>
+			<cfset result =  "#result# + '#arguments.delimeter#' + CAST(#colname# AS varchar(500))">
+		<cfelse>
+			<cfset result = "CAST(#colname# AS varchar(500))">
 		</cfif>
-		<cfset ArrayAppend(aArgs,"CAST(#colname# AS varchar(500))")>
 	</cfloop>
-	
-	<cfreturn concatSQL(aArgs)>
-</cffunction>
-
-<cffunction name="concatSQL" access="public" returntype="string" output="no">
-	
-	<cfset var result = "">
-	<cfset var str = "">
-	<cfset var ii = 0>
-	<cfset var arr = arguments />
-	
-	<cfif ArrayLen(arr)>
-		<cfif ArrayLen(arr) EQ 1 AND isArray(arr[1])>
-			<cfset arr =arr[1]> 
-		</cfif>
-		<cfloop index="ii" from="1" to="#ArrayLen(arr)#" step="1">
-			<cfset str = arr[ii]>
-			<cfif isSimpleValue(str)>
-				<cfif Len(result)>
-					<cfset result =  "#result# + #str#">
-				<cfelse>
-					<cfset result = str>
-				</cfif>
-			</cfif>
-		</cfloop>
-	</cfif>
 	
 	<cfreturn result>
 </cffunction>
@@ -209,24 +183,31 @@
 		<cfset tmpStruct["CF_DataType"] = getCFDataType(Type)>
 		<cfif ListFindNoCase(PrimaryKeys,Field)>
 			<cfset tmpStruct["PrimaryKey"] = true>
+		<cfelse>
+			<cfset tmpStruct["PrimaryKey"] = false>
 		</cfif>
 		<cfif isBoolean(Trim(IsIdentity))>
 			<cfset tmpStruct["Increment"] = IsIdentity>
+		<cfelse>
+			<cfset tmpStruct["Increment"] = false>
 		</cfif>
 		<cfif Len(MaxLength) AND isNumeric(MaxLength) AND NOT tmpStruct["CF_DataType"] eq "CF_SQL_LONGVARCHAR">
 			<cfset tmpStruct["length"] = MaxLength>
 		</cfif>
 		<cfif isBoolean(Trim(AllowNulls))>
 			<cfset tmpStruct["AllowNulls"] = Trim(AllowNulls)>
+		<cfelse>
+			<cfset tmpStruct["AllowNulls"] = true>
 		</cfif>
 		<cfset tmpStruct["Precision"] = Precision>
 		<cfset tmpStruct["Scale"] = Scale>
 		<cfif Len(Default)>
 			<cfset tmpStruct["Default"] = Default>
 		</cfif>
+		<cfset tmpStruct["Special"] = "">
 		
 		<cfif Len(tmpStruct.CF_DataType)>
-			<cfset ArrayAppend(TableData,adjustColumnArgs(tmpStruct))>
+			<cfset ArrayAppend(TableData,StructCopy(tmpStruct))>
 		</cfif>
 	</cfoutput>
 	
@@ -243,7 +224,7 @@
 		<cfcase value="binary,image,sql_variant,sysname,varbinary"><cfset result = ""></cfcase>
 		<cfcase value="bit"><cfset result = "CF_SQL_BIT"></cfcase>
 		<cfcase value="char"><cfset result = "CF_SQL_CHAR"></cfcase>
-		<cfcase value="datetime"><cfset result = "CF_SQL_DATE"></cfcase>
+		<cfcase value="date,datetime"><cfset result = "CF_SQL_DATE"></cfcase>
 		<cfcase value="decimal"><cfset result = "CF_SQL_DECIMAL"></cfcase>
 		<cfcase value="float"><cfset result = "CF_SQL_FLOAT"></cfcase>
 		<cfcase value="int"><cfset result = "CF_SQL_INTEGER"></cfcase>

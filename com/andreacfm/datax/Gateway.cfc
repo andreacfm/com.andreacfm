@@ -8,7 +8,7 @@
 		<cfargument name="dataSettingsBean" required="true" type="com.andreacfm.datax.ModelConfig" />
 		<cfargument name="dbFactory" required="true" type="com.andreacfm.datax.dbFactory" />
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr" />
-		<cfargument name="EventManager" required="true" type="EventManager.EventManager" />	
+		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />	
 			
 			<cfset variables.id = arguments.dataSettingsBean.getId() />
 			<cfset variables.table = arguments.dataSettingsBean.getTable() />
@@ -111,7 +111,7 @@
 	</cffunction>
 
 	<!--- Event Manager--->
-	<cffunction name="getEventManager" access="public" returntype="EventManager.EventManager">
+	<cffunction name="getEventManager" access="public" returntype="com.andreacfm.cfem.EventManager">
 		<cfreturn variables.EventManager/>
 	</cffunction>
 
@@ -161,7 +161,7 @@
 				</cfif>
 							
 				<cfset qRead = dataMgr.getRecords(
-						table = gettable(),
+						tablename = gettable(),
 						data = arguments.sql.getdata(),
 						orderby = arguments.sql.getOrderBy(),
 						maxrows = arguments.sql.getMaxrows(),
