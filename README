@@ -1,9 +1,10 @@
-v. 1.0 
-1) Datax does not support orm. 
-2) Datax does not support external caching just provides CacheKey hooks.
+Dependencies
+----------------------------------------------
+coldspring 1.2
+mxunit 2.0 ( for testing )
 
 Unit test set up
-------------------
+----------------------------------------------
 Create a db called books:
 
 CREATE DATABASE `books`
@@ -12,3 +13,8 @@ CREATE DATABASE `books`
 	
 Add a dsn called 'books'	
 
+Realease notes
+-----------------------------------------------
+v. 1.0 
+1) Datax does not support orm. 
+2) Datax does not support external caching just provides CacheKey hooks.
