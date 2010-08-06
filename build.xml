@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.andreacfm" default="compile">
+	
+	<!-- update build properties -->
+	<propertyfile file="buildprops/build.properties">
+		<entry key="build.number" type="int" operation="+" value="1" pattern="00"/>
+		<entry key="build.date" type="date" pattern="EEEE MMM dd, yyyy" value="now"/>
+		<entry key="build.time" type="date" pattern="kk:mm:ss" value="now"/>
+		<entry key="build.timestamp" type="date" pattern="yyyy-MM-dd'T'HH:mm:ss" value="now"/>
+		<entry key="build.year" type="date" pattern="yyyy" value="now"/>
+	</propertyfile>	
+		
+	<!-- build properties -->	
+	<property file="buildprops/build.properties"/>
+	<property file="buildprops/project.properties"/>
+	<property file="buildprops/unames.properties"/>	
+
+		
+	<target name="runtests" description="Make output directories and run the MXUnit task">
+
+		<mkdir dir="${mxunit.output}" />
+
+	    <taskdef name="mxunittask" classname="org.mxunit.ant.MXUnitAntTask" classpath="${mxunit.jar}"/>
+	   	
+		<echo message="Runnig Datax tests"/>
+		<mxunittask server="${server.host}" port="${server.port}"
+        	defaultrunner="/mxunit/runner/HttpAntRunner.cfc"
+           	verbose="true"
+			outputdir="testresults"
+           	haltonfailure="true"
+           	haltonerror="false">
+			
+	        <directory runner="${mxunit.httprunner}"
+                 remoteMethod="run"
+                 path="${datax.component.path}"
+                 packageName="${datax.component.packagename}"
+                 componentPath="${datax.component.componentpath}"
+                 recurse="true"
+                />
+
+	    </mxunittask>
+
+	</target>
+	
+	<target name="junitreport" description="Create a report for the rest result">
+		<mkdir dir="${mxunit.junitoutput}"/>
+		<junitreport todir="${mxunit.junitoutput}">
+			<fileset dir="${mxunit.output}">
+				<include name="*.xml"/>
+			</fileset>
+			<report format="frames" todir="${mxunit.junitoutput}" styledir="${mxunit.xsl}"/>
+		</junitreport>
+	</target>
+
+
+	<!--
+	<target name="commit">
+		<echo level="info">Committing Cfem</echo>
+	   	<input message="SVN Commit Comment:" addproperty="commit.comment" defaultvalue="Periodic Commit From Ant Task" />
+	    <taskdef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="project.classpath"/>
+	    <svn username="${svn.username}" password="${svn.password}">
+	    	<commit message="${commit.comment}" dir="${basedir}" recurse="true" />
+	   	</svn>
+	</target>
+	-->
+			
+	<target 
+		name="compile" 
+		depends="runtests,junitreport" />
+	
+
+</project>
+
+
+
+
