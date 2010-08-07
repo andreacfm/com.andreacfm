@@ -10,7 +10,7 @@
 	<cfproperty name="advsql" type="struct" />
 	<cfproperty name="alive" type="boolean" />
 	<cfproperty name="offset" type="numeric">
-	<cfproperty name="cacheKey" type="com.andreacfm.datax.CacheKey">
+	<cfproperty name="key" type="any">
 	
 
 	<cfset variables.alive = true />	
@@ -32,7 +32,7 @@
 		<cfargument name="advSql" required="false"  type="struct" default="#structNew()#"/>
 		<cfargument name="filters" required="false" type="array" default="#arrayNew(1)#"/>
 		<cfargument name="cache" required="false" type="boolean" default="false" />
-		<cfargument name="CacheKey" required="false" type="com.andreacfm.datax.CacheKey" default="#createObject('component','com.andreacfm.datax.CacheKey').init()#"/>
+		<cfargument name="key" required="false" type="any" default=""/>
 		<cfargument name="offset" required="false" type="numeric" default="0" />
 		
 		<cfset variables.cache = arguments.cache />
@@ -46,7 +46,7 @@
 		<cfset setfieldlist(fieldlist) />
 		<cfset setadvsql(advSql) />
 		<cfset setfilters(filters) />
-		<cfset setcacheKey(CacheKey) />
+		<cfset setkey(key) />
 		<cfset setOffset(offset)>
 		
 		<cfreturn this/>
@@ -67,33 +67,30 @@
 		<cfreturn variables.alive />	
 	</cffunction>	
 	
-    <!--- query--->
-    <cffunction name="setquery" access="public" returntype="void">
-		<cfargument name="query" type="Query" required="true"/>
-		<cfset variables.query = query />
+	
+	<!--- result--->
+	<cffunction name="setresult" access="public" returntype="void">
+		<cfargument name="result" type="any" required="true"/>
+		<cfset variables.result = result />
 	</cffunction> 
-	<cffunction name="getquery" access="public" returntype="Query">
-		<cfreturn variables.query/>
-	</cffunction>	
-
-    <!--- objectsRecordset--->
-    <cffunction name="setobjectsRecordset" access="public" returntype="void">
-		<cfargument name="objectsRecordset" type="Array" required="true"/>
-		<cfset variables.objectsRecordset = objectsRecordset />
-	</cffunction> 
-	<cffunction name="getobjectsRecordset" access="public" returntype="Array">
-		<cfreturn variables.objectsRecordset/>
+	<cffunction name="getresult" access="public" returntype="any">
+		<cfreturn variables.result/>
 	</cffunction>
 
-    <!--- cacheKey--->
-    <cffunction name="setcacheKey" access="public" returntype="void">
-		<cfargument name="cacheKey" type="com.andreacfm.datax.CacheKey" required="true"/>
+    <!--- key--->
+    <cffunction name="setkey" access="public" returntype="void">
+		<cfargument name="key" type="any" required="true"/>
 		<cfset var d = arrayNew(1) />
-		<cfif isCaching() and cacheKey.askSqlKey()>
-			<cfset d = [getmethod(),getTable(),getSortedData(d),getfilters(),getfieldlist(),getadvsql(),getorderBy(),getmaxRows(),getoffset()] />
-			<cfset cacheKey.setData(d) />
+		
+		<cfif isCaching()>
+			<cfif len(arguments.key)>
+				<cfset variables.key = arguments.key>
+			<cfelse>
+				<cfset d = [getmethod(),getTable(),getSortedData(d),getfilters(),getfieldlist(),getadvsql(),getorderBy(),getmaxRows(),getoffset()] />
+				<cfset variables.key = hash(serializejson(d)) />
+			</cfif>
 		</cfif>
-		<cfset variables.cacheKey = cacheKey />
+
 	</cffunction> 
 	
 	<!---data--->

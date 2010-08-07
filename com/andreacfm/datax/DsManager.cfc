@@ -14,7 +14,8 @@
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr"/>	
 		<cfargument name="config" required="false" type="array" default="#arraynew(1)#"/>
 		<cfargument name="autowire" required="false" type="Boolean" default="false"/>
-		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />	
+		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />
+		<cfargument name="CacheManager" required="true" type="com.andreacfm.caching.ICacheManager" />	
 		
 		<cfscript>
 			var service = "" ;
@@ -23,6 +24,7 @@
 			variables.dbFactory = arguments.dbFactory;
 			variables.dataMgr = arguments.dataMgr;
 			variables.EventManager = arguments.EventManager;
+			variables.CacheManager = arguments.CacheManager;
 			
 			for( i = 1 ; i <= arraylen(config); i++){
 				if(validateService(config[i])){
@@ -112,6 +114,10 @@
     	<cfreturn variables.EventManager/>
     </cffunction>
 
+	<!--- CacheManager--->    
+    <cffunction name="getCacheManager" access="public" returntype="com.andreacfm.caching.ICacheManager">
+    	<cfreturn variables.CacheManager/>
+    </cffunction>
 
 	<!-----------------------------------------  PRIVATE   ---------------------------------------------------------------->
 	
@@ -211,9 +217,9 @@
 		serviceConfig = getserviceConfig(id);
 		
 		if(structKeyExists(serviceConfig,'gateway')){
-			gateway = createObject('component','#serviceConfig.gateway#').init(serviceConfig.modelConfig,getDbFactory(),getDataMgr(),getEventManager());
+			gateway = createObject('component','#serviceConfig.gateway#').init(serviceConfig.modelConfig,getDbFactory(),getDataMgr(),getEventManager(),getCacheManager());
 		}else{
-			gateway = createObject('component','com.andreacfm.datax.Gateway').init(serviceConfig.modelConfig,getDbFactory(),getDataMgr(),getEventManager());				
+			gateway = createObject('component','com.andreacfm.datax.Gateway').init(serviceConfig.modelConfig,getDbFactory(),getDataMgr(),getEventManager(),getCacheManager());				
 		}
 		if(this.autowire){
 			getBeanFactory().getBean('beanInjector').autowire(gateway);

@@ -11,10 +11,6 @@
             <value>books</value>
         </constructor-arg>
         
-        <constructor-arg name="smartCache">
-            <value>false</value>
-        </constructor-arg>
-		
         <constructor-arg name="xmlPath">
             <value>/com/andreacfm/datax/tests/config/dataMgr.xml.cfm</value>
         </constructor-arg>
@@ -76,6 +72,8 @@
         </constructor-arg>
         
     </bean>
+	
+	<bean id="CacheManager" class="com.andreacfm.caching.SimpleCache"/>
     
     <!-- 		
         MODEL
@@ -147,11 +145,7 @@
     <bean id="bookValidator" class="com.andreacfm.datax.tests.model.bookValidator"/>
     
     <bean id="dbFactory" class="com.andreacfm.datax.dbFactory" singleton="true" autowire="byName">
-        
-        <constructor-arg name="dataMgr">
-            <ref bean="dataMgr"/>
-        </constructor-arg>	
-    	
+           	
     	<constructor-arg name="testmode">
     		<value>true</value>
     	</constructor-arg>
@@ -190,13 +184,6 @@
     
     <bean id="dsManager" class="com.andreacfm.datax.DsManager" singleton="true" autowire="byName" lazy-init="false">
         
-        <constructor-arg name="dataMgr">
-            <ref bean="dataMgr"/>
-        </constructor-arg>	
-        
-        <constructor-arg name="dbFactory">
-            <ref bean="dbFactory"/>
-        </constructor-arg>	
         
         <constructor-arg name="config">
             <list>

@@ -2,7 +2,8 @@
 
 	<cffunction name="setUp">
 		<cfset variables.beanfactory = CreateObject('component','com.andreacfm.util.beanutils.DynamicXmlBeanFactory').init()/>
-		<cfset variables.beanfactory.loadBeansFromDynamicXmlFile('/com/andreacfm/datax/tests/config/coldspring.xml.cfm') />		
+		<cfset variables.beanfactory.loadBeansFromDynamicXmlFile('/com/andreacfm/datax/tests/config/coldspring.xml.cfm') />
+		<cfset variables.beanfactory.getBean('EventManager').getLogger().setOut('console')>		
 	</cffunction>
 	
 	<cffunction name="testDataMgr" returntype="void" hint="test dataMgr bean creation">

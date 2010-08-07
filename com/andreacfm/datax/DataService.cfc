@@ -22,6 +22,7 @@
 
 	<!---	read	--->
 	<cffunction name="read"  access="public" returntype="any" output="false">
+		<!--- query --->
 		<cfargument name="data" type="struct" required="false" default="#structNew()#"/>	
 		<cfargument name="orderBy" required="false" default="" />
 		<cfargument name="maxrows" required="false" type="numeric" default="1000000" />
@@ -29,13 +30,20 @@
 		<cfargument name="advSql" required="false"  type="struct" default="#structNew()#"/>
 		<cfargument name="filters" required="false" type="array" default="#arrayNew(1)#"/>
 		<cfargument name="skipFields" required="false" type="string" default=""/>
-		<cfargument name="pop" required="false" type="boolean" default="false"/>
+		
+		<!--- cache --->
 		<cfargument name="cache" required="false" type="boolean" default="false"/>
+		<cfargument name="cachename" required="false" type="string" default=""/>
+		<cfargument name="cachewithin" required="false" type="string" default=""/>
+		<cfargument name="timeidle" required="false" type="string" default=""/>
+		
+		<!--- pagination --->
 		<cfargument name="page" required="false" type="numeric" default="0"/>
 		<cfargument name="perPage" required="false" type="numeric" default="0"/>
 
 		<!--- read method --->		
 		<cfargument name="method" required="false" type="string" default="read"/>		
+		<cfargument name="pop" required="false" type="boolean" default="false"/>
 
 		<cfset var result = getData(argumentCollection=arguments) />
 		
@@ -49,6 +57,7 @@
 
 	<!---	list	--->
 	<cffunction name="list" access="public" returntype="query" output="false">
+		<!--- query --->
 		<cfargument name="data" type="struct" required="false" default="#structNew()#"/>	
 		<cfargument name="orderBy" required="false" default="" />
 		<cfargument name="maxrows" required="false" type="numeric" default="1000000" />
@@ -56,7 +65,14 @@
 		<cfargument name="advSql" required="false"  type="struct" default="#structNew()#"/>
 		<cfargument name="filters" required="false" type="array" default="#arrayNew(1)#"/>
 		<cfargument name="skipFields" required="false" type="string" default=""/>
+		
+		<!--- cache --->
 		<cfargument name="cache" required="false" type="boolean" default="false"/>
+		<cfargument name="cachename" required="false" type="string" default=""/>
+		<cfargument name="cachewithin" required="false" type="string" default=""/>
+		<cfargument name="timeidle" required="false" type="string" default=""/>
+		
+		<!--- pagination --->
 		<cfargument name="page" required="false" type="numeric" default="0"/>
 		<cfargument name="perPage" required="false" type="numeric" default="0"/>
 						
@@ -129,13 +145,9 @@
 		
 		<cfset var sqlObj = ""/>
 		
-		<!--- add table for caching --->
+		<!--- add table for caching key generation --->
 		<cfset arguments.table = getGateway().getTable() />
-		<!--- default cachekey // ask for key to sql --->
-		<cfif arguments.cache and not structkeyexists(arguments,'cacheKey')>
-			<cfset arguments.cacheKey = createObject('component','com.andreacfm.datax.CacheKey').init() />
-		</cfif>
-
+		<!--- todo: add prefix with the related tables for cache flush --->
 		<cfset sqlObj = createObject("component","com.andreacfm.datax.Sql").init(argumentCollection=arguments) />
 
 		<cfreturn sqlObj/>

@@ -9,6 +9,7 @@
 		<cfargument name="dbFactory" required="true" type="com.andreacfm.datax.dbFactory" />
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr" />
 		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />	
+		<cfargument name="CacheManager" required="true" type="com.andreacfm.caching.ICacheManager" />	
 			
 			<cfset variables.id = arguments.dataSettingsBean.getId() />
 			<cfset variables.table = arguments.dataSettingsBean.getTable() />
@@ -18,7 +19,8 @@
 			<cfset variables.defaultOrderBy = arguments.dataSettingsBean.getdefaultOrderBy() />
 			<cfset variables.dbFactory = arguments.dbFactory />
 			<cfset variables.dataMgr = arguments.dataMgr />
-			<cfset variables.EventManager = arguments.EventManager />			
+			<cfset variables.EventManager = arguments.EventManager />
+			<cfset variables.CacheManager = arguments.CacheManager />				
 			
 		<cfreturn this/>		
 	</cffunction>
@@ -33,14 +35,27 @@
 			
 			<cfset beforeRead( arguments.sql ) />
 			
+			<cfif arguments.sql.isCaching()>
+				<cfset processPreCacheRequest(arguments.sql)>
+			</cfif>
+			
 			<!--- if sql is killed this is skipped --->
 			<cfset dbquery( arguments.sql ) />
 			
 			<!--- this allow a listener to kill the query and push a desired array recordset --->
-			<cfif not arguments.sql.isAlive() and arguments.sql.getObjectsRecordset().size() gt 0>
-				<cfset result = arguments.sql.getObjectsRecordset() />
+			<cfif not arguments.sql.isAlive()>
+				<cfset result = arguments.sql.getResult() />
 			<cfelse>	
-				<cfset result = queryToDataBean( arguments.sql.getQuery(), sql.isCaching() ) />				
+				<!--- 
+				Process the request and say to the objects if they will be cached or not. 
+				The bean so knows was cached or not and will eventually cache the composite as default 
+				implementation.
+				 --->
+				<cfset result = queryToDataBean( arguments.sql.getResult(), sql.isCaching() ) />				
+			</cfif>
+
+			<cfif arguments.sql.isCaching()>
+				<cfset processPostCacheRequest(arguments.sql)>
 			</cfif>
 			
 			<cfset afterRead( arguments.sql , result ) />
@@ -53,12 +68,26 @@
 		<cfargument name="sql" required="true" type="com.andreacfm.datax.sql"/>
 			
 			<cfset beforeList(arguments.sql) />
+	
+			<cfif arguments.sql.isCaching()>
+				<cfset processPreCacheRequest(arguments.sql)>
+			</cfif>
 			
+			<!--- if sql is killed this is skipped --->
 			<cfset dbquery(sql:arguments.sql) />
+
+			<!--- this allow a listener to kill the query and push a desired array recordset --->
+			<cfif not arguments.sql.isAlive()>
+				<cfset result = arguments.sql.getResult() />
+			</cfif>
+
+			<cfif arguments.sql.isCaching()>
+				<cfset processPostCacheRequest(arguments.sql)>
+			</cfif>
 			
 			<cfset afterList( arguments.sql ) />
 		
-		<cfreturn arguments.sql.getQuery() />	
+		<cfreturn arguments.sql.getResult() />	
 	</cffunction>
 
 	<!---bean--->
@@ -115,6 +144,10 @@
 		<cfreturn variables.EventManager/>
 	</cffunction>
 
+	<!--- Cache Manager--->
+	<cffunction name="getCacheManager" access="public" returntype="com.andreacfm.caching.CacheManager">
+		<cfreturn variables.CacheManager/>
+	</cffunction>
 
 	<!-----------------------------------------  PRIVATE   ---------------------------------------------------------------->
 
@@ -146,6 +179,36 @@
 		<cfset getEventManager().dispatchEvent(name = 'GatewayAfterList',data = data, target = this) />
 	</cffunction>
 
+	<!--- processPreCacheRequest--->
+	<cffunction name="processPreCacheRequest" returntype="void" output="false" access="private" hint="Sql is caching so look for a caches">
+		<cfargument name="sql" type="com.andreacfm.datax.Sql">
+		<cfscript>
+		var cm = getCacheManager();
+		var key = sql.getCacheKey();
+		
+		if(cm.exists(key)){
+			arguments.sql.setResult(cm.get(key));
+			arguments.sql.kill();
+		}
+		
+		</cfscript>
+	</cffunction>
+
+	<!--- processPostCacheRequest--->
+	<cffunction name="processPostCacheRequest" returntype="void" output="false" access="private" hint="Sql is caching but no key so push the result">
+		<cfargument name="sql" type="com.andreacfm.datax.Sql">
+		<cfscript>
+		var cm = getCacheManager();
+		var key = sql.getCacheKey();
+		
+		if(not cm.exists(key)){
+			var str = sql.getMemento();
+			str.value = sql.getResult(); 
+			cm.put(argumentCollection = str);
+		}
+		
+		</cfscript>
+	</cffunction>
 	
 	<!--- query database  --->	
 	<cffunction name="dbquery" access="private" output="false" returntype="void">
@@ -170,7 +233,7 @@
 						filters = arguments.sql.getFilters(),
 						offset = arguments.sql.getOffset())/>
 			
-				<cfset arguments.sql.setQuery(qRead) />
+				<cfset arguments.sql.setResult(qRead) />
 
 			</cfif>
 

@@ -5,5 +5,4 @@
 	com = this.path & '/com/'
 }>	
 
-
 </cfcomponent>

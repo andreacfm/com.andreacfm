@@ -38,6 +38,14 @@
                  recurse="true"
                 />
 
+	        <directory runner="${mxunit.httprunner}"
+                 remoteMethod="run"
+                 path="${caching.component.path}"
+                 packageName="${caching.component.packagename}"
+                 componentPath="${caching.component.componentpath}"
+                 recurse="true"
+                />
+
 	    </mxunittask>
 
 	</target>
