@@ -145,7 +145,7 @@
 	</cffunction>
 
 	<!--- Cache Manager--->
-	<cffunction name="getCacheManager" access="public" returntype="com.andreacfm.caching.CacheManager">
+	<cffunction name="getCacheManager" access="public" returntype="com.andreacfm.caching.ICacheManager">
 		<cfreturn variables.CacheManager/>
 	</cffunction>
 
@@ -184,7 +184,7 @@
 		<cfargument name="sql" type="com.andreacfm.datax.Sql">
 		<cfscript>
 		var cm = getCacheManager();
-		var key = sql.getCacheKey();
+		var key = sql.getKey();
 		
 		if(cm.exists(key)){
 			arguments.sql.setResult(cm.get(key));
@@ -199,7 +199,7 @@
 		<cfargument name="sql" type="com.andreacfm.datax.Sql">
 		<cfscript>
 		var cm = getCacheManager();
-		var key = sql.getCacheKey();
+		var key = sql.getKey();
 		
 		if(not cm.exists(key)){
 			var str = sql.getMemento();

@@ -6,6 +6,15 @@
 		<cfset variables.beanfactory.getBean('EventManager').getLogger().setOut('console')>		
 	</cffunction>
 	
+	<cffunction name="teardown">
+		<cfscript>
+		var dm = variables.beanfactory.getBean('dataMgr');
+		dm.removeTable('book_author');		
+		dm.removeTable('book');
+		dm.removeTable('author');
+		</cfscript>
+	</cffunction>
+	
 	<cffunction name="testDataMgr" returntype="void" hint="test dataMgr bean creation">
 		<cfset var dataMgr = variables.beanfactory.getBean('dataMgr') />
 		<cfset assertTrue(isInstanceOf(dataMgr,'com.andreacfm.datax.dataMgr.dataMgr'),"Data mgr not loaded correctly")>		
@@ -53,13 +62,20 @@
 		<cfset dm = variables.beanfactory.getBean('dataMgr') />
 		
 		<cftransaction action="begin"> 
-			<!--- craete --->
-			<cfset book.setBookName('newBook') />
-			<cfset result = book.create() />
+			<cftry>
+				<!--- craete --->
+				<cfset book.setBookName('newBook') />
+				<cfset result = book.create() />
+				
+				<cfset assertTrue(result.getStatus() and isNumeric(result.getData()),'Inserting data failed!') />
+				
+				<cfcatch type="any">
+					<cftransaction action="rollback"/>
+				</cfcatch>			
 			
-			<cfset assertTrue(result.getStatus() and isNumeric(result.getData()),'Inserting data failed!') />
-			
-			<cftransaction action="rollback"/>
+			</cftry>
+
+			<cftransaction action="rollback"/>			
 		</cftransaction>
 			
 	</cffunction>		
@@ -72,20 +88,27 @@
 		<cfset var result = "" />
 		
 		<cftransaction action="begin"> 
-			<!--- craete --->
-			<cfset book.setBookName('newBook') />
-			<cfset result = book.create() />
+			<cftry>
+				<!--- craete --->
+				<cfset book.setBookName('newBook') />
+				<cfset result = book.create() />
+	
+				<!--- update --->
+				<cfset book.setBookName('testName') />
+				<cfset book.setBookId(result.getData()) />
+				<cfset book.update() />
+				
+				<!--- reload --->
+				<cfset newBook = bookService.readById(result.getData(),true) />
+							
+				<cfset assertTrue(newbook.getBookId() eq result.getData() and newbook.getBookName() eq 'testName','Updating data failed!') />
+			
+				<cfcatch type="any">
+					<cftransaction action="rollback"/>
+				</cfcatch>			
+			
+			</cftry>
 
-			<!--- update --->
-			<cfset book.setBookName('testName') />
-			<cfset book.setBookId(result.getData()) />
-			<cfset book.update() />
-			
-			<!--- reload --->
-			<cfset newBook = bookService.readById(result.getData(),true) />
-						
-			<cfset assertTrue(newbook.getBookId() eq result.getData() and newbook.getBookName() eq 'testName','Updating data failed!') />
-			
 			<cftransaction action="rollback"/>
 		</cftransaction>
 			
@@ -99,22 +122,29 @@
 		<cfset var q = "" />
 		
 		<cftransaction action="begin">
-		
-			<!--- craete --->
-			<cfset book.setBookName('newBook') />
-			<cfset result = book.create() />
-						
-			<!--- update the bean --->
-			<cfset book.setBookId(result.getData()) />
+	
+			<cftry>	
+				<!--- craete --->
+				<cfset book.setBookName('newBook') />
+				<cfset result = book.create() />
+							
+				<!--- update the bean --->
+				<cfset book.setBookId(result.getData()) />
+				
+				<!--- delete --->
+				<cfset book.delete() />
+				
+				<!--- try to reload --->
+				<cfset q = bookService.listById(result.getData()) />
+				
+				<cfset assertTrue(q.recordcount eq 0,'Deleting data failed.') />
+	
+				<cfcatch type="any">
+					<cftransaction action="rollback"/>
+				</cfcatch>			
 			
-			<!--- delete --->
-			<cfset book.delete() />
-			
-			<!--- try to reload --->
-			<cfset q = bookService.listById(result.getData()) />
-			
-			<cfset assertTrue(q.recordcount eq 0,'Deleting data failed.') />
-						
+			</cftry>
+					
 			<cftransaction action="rollback"/>
 		</cftransaction>
 			
@@ -147,45 +177,58 @@
 		<cfset var book = "" />
 		<cfset var result = "" />
 
-		<!--- make all the beans --->
-		<cfset dbFactory.makeBeans() />
+		<cftransaction action="begin">
+			
+			<cftry>
+				
+				<!--- make all the beans --->
+				<cfset dbFactory.makeBeans() />
+		
+				<cfset var author = dbFactory.getBean('author') />
+				<cfset var book = dbFactory.getBean('book') />
+				
+				<!--- set some data --->
+				<cfset author.setAuthorName('Author A')/>
+				<cfset result = author.create() />
+				<cfset book.setBookName('book A') />
+				<cfset book.setAuthorList(result.getData()) />
+				<cfset result = book.create() />
+				
+				<cfset book = bookService.readById(result.getData(),true) />
+				
+				<!--- load check must be empty --->
+				<cfset assertTrue(structIsEmpty(book.getLoad()),"Check load struct is not empty or is not a struct") />
+				
+				<!--- load a lazy relation --->
+				<cfset authors = book.getAuthorArray() />
+		
+				<!--- refresh the load Check var--->
+				<cfset loadCheck = book.getLoad() />
+				
+				<cfset assertTrue(not structIsEmpty(loadCheck),"LoadCheck has not been updated from the loading operation. Still empty") />
+				<cfset assertTrue(structKeyExists(loadCheck,'authorarray'),"Loadcheck do not show the right label") />
+				
+				<!--- control that data is not loaded again if no refresh is called --->
+				<cfset authorsHash = createObject("java", "java.lang.System").identityHashCode(authors) />
+				<cfset reauthors = book.getAuthorArray() />
+				<cfset reAuthorsHash = createObject("java", "java.lang.System").identityHashCode(reauthors) />
+				
+				<cfset assertTrue(authorsHash eq reAuthorsHash,"Array has been reloaded and not cached properly") />
+				
+				<!--- check data are refreshed --->
+				<cfset reauthors = book.getAuthorArray(refresh = true) />
+				<cfset reAuthorsHash = createObject("java", "java.lang.System").identityHashCode(reauthors) />
+		
+				<cfset assertTrue(authorsHash neq reAuthorsHash,"Data has not been refreshed properly") />
 
-		<cfset var author = dbFactory.getBean('author') />
-		<cfset var book = dbFactory.getBean('book') />
-		
-		<!--- set some data --->
-		<cfset author.setAuthorName('Author A')/>
-		<cfset result = author.create() />
-		<cfset book.setBookName('book A') />
-		<cfset book.setAuthorList(result.getData()) />
-		<cfset result = book.create() />
-		
-		<cfset book = bookService.readById(result.getData(),true) />
-		
-		<!--- load check must be empty --->
-		<cfset assertTrue(structIsEmpty(book.getLoad()),"Check load struct is not empty or is not a struct") />
-		
-		<!--- load a lazy relation --->
-		<cfset authors = book.getAuthorArray() />
+				<cfcatch type="any">
+					<cftransaction action="rollback"/>
+				</cfcatch>			
+			
+			</cftry>
 
-		<!--- refresh the load Check var--->
-		<cfset loadCheck = book.getLoad() />
-		
-		<cfset assertTrue(not structIsEmpty(loadCheck),"LoadCheck has not been updated from the loading operation. Still empty") />
-		<cfset assertTrue(structKeyExists(loadCheck,'authorarray'),"Loadcheck do not show the right label") />
-		
-		<!--- control that data is not loaded again if no refresh is called --->
-		<cfset authorsHash = createObject("java", "java.lang.System").identityHashCode(authors) />
-		<cfset reauthors = book.getAuthorArray() />
-		<cfset reAuthorsHash = createObject("java", "java.lang.System").identityHashCode(reauthors) />
-		
-		<cfset assertTrue(authorsHash eq reAuthorsHash,"Array has been reloaded and not cached properly") />
-		
-		<!--- check data are refreshed --->
-		<cfset reauthors = book.getAuthorArray(refresh = true) />
-		<cfset reAuthorsHash = createObject("java", "java.lang.System").identityHashCode(reauthors) />
-
-		<cfset assertTrue(authorsHash neq reAuthorsHash,"Data has not been refreshed properly") />
+			<cftransaction action="rollback"/>
+		</cftransaction>
 			
 	</cffunction>
 			

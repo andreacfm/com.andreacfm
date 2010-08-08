@@ -1,8 +1,8 @@
 <cfcomponent output="false" accessors="true" implements="com.andreacfm.caching.ICacheManager">
 	
 	<cfproperty name="store" type="struct">
-	<cfproperty name="cachewithin" type="string">
-	<cfproperty name="timeidle" type="string">
+	<cfproperty name="cachewithin" type="date">
+	<cfproperty name="timeidle" type="date">
 	<cfproperty name="cachename" type="string">	
 	
 	<cfscript>
