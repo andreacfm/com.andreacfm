@@ -1,17 +1,21 @@
-<cfcomponent 
-	output="false"
-	name="Dao"	 
-	hint="Dao base class">
+<cfcomponent  output="false" accessors="true">
+	
+	<cfproperty name="ModelConfig" type="com.andreacfm.datax.ModelConfig">
+	<cfproperty name="EventManager" type="com.andreacfm.cfem.EventManager">
+	<cfproperty name="CacheManager" type="com.andreacfm.caching.ICacheManager">
+	<cfproperty name="dataMgr" type="com.andreacfm.datax.dataMgr.dataMgr">
 
 	<!---constructor--->		
-	<cffunction name="init" description="initialize the object settings struct" output="false" returntype="com.andreacfm.datax.dao">	
+	<cffunction name="init" description="initialize the object settings struct" output="false" returntype="com.andreacfm.datax.Dao">	
 		<cfargument name="ModelConfig" required="true" type="com.andreacfm.datax.ModelConfig" />
 		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr" />
-		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />		
+		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />
+		<cfargument name="CacheManager" required="true" type="com.andreacfm.caching.ICacheManager" />		
 		<cfscript>
-			variables.ModelConfig = arguments.ModelConfig;
-			variables.dataMgr = arguments.dataMgr;
-			variables.EventManager = arguments.EventManager;
+			setModelConfig(arguments.ModelConfig);
+			setdataMgr(arguments.dataMgr);
+			setEventManager(arguments.EventManager);
+			setCacheManager(arguments.CacheManager);
 		</cfscript>
 	<cfreturn this/>	
 	</cffunction>
@@ -54,8 +58,11 @@
 				</cfcatch>
 
 			</cftry>
-
+			
+			<!--- clean the cache of all the related tables --->
+			<cfset cleanCache(bean.getRelatedTables())>
 			<cfset result.setData(savedRecord)>
+		
 		<cfreturn result />
 	</cffunction>
 	
@@ -81,7 +88,9 @@
 				</cfcatch>
 			
 			</cftry>
-		
+
+		<!--- clean the cache of all the related tables --->
+		<cfset cleanCache(bean.getRelatedTables())>		
 		<cfreturn result />
 		
 	</cffunction>
@@ -124,35 +133,32 @@
 			</cfcatch>
 		
 		</cftry> 		
+
+		<!--- clean the cache of all the related tables --->
+		<cfset cleanCache(bean.getRelatedTables())>
 			
 		<cfreturn result />
 	</cffunction>
-
-	<!---ModelConfig--->
-	<cffunction name="getModelConfig" access="public" output="false" returntype="com.andreacfm.datax.ModelConfig">
-		<cfreturn variables.ModelConfig/>
-	</cffunction>
-
-	<!---dataMgr instance--->
-	<cffunction name="getdataMgr" access="public" output="false" returntype="com.andreacfm.datax.dataMgr.dataMgr">
-		<cfreturn variables.dataMgr />
-	</cffunction>
-
-	<!--- Event Manager--->
-	<cffunction name="getEventManager" access="public" returntype="com.andreacfm.cfem.EventManager">
-		<cfreturn variables.EventManager/>
-	</cffunction>
 	
 	<!-----------------------------------------  PRIVATE   ---------------------------------------------------------------->
-
+		
+	<!--- 
+	cleanCache
+	 --->
+	<cffunction name="cleanCache" returntype="void" output="false" access="public" hint="Remove from cache all the related tables items">
+		<cfargument name="relatedTables" type="array" required="true">
+		<cfscript>
+		var cm = getCacheManager();
+		cm.remove(criteria=relatedTables);
+		</cfscript>
+	</cffunction>
+	
 	<!---	message	 --->
 	<cffunction name="getmessage" access="private" output="false" returntype="com.andreacfm.util.Message">
 		<cfreturn createObject('component','com.andreacfm.util.Message').init()/>
 	</cffunction>
 
-	<!--- 
-	stripComplexValues
-	 --->
+	<!--- stripComplexValues --->
 	<cffunction name="stripComplexValues" returntype="void" output="false" access="private">
 		<cfargument name="str" type="struct" required="true" />
 		<cfargument name="memento" type="struct" required="true" />

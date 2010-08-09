@@ -10,7 +10,9 @@ Create a db called books:
 CREATE DATABASE `books`
 	DEFAULT CHARACTER SET utf8
 	DEFAULT COLLATE utf8_general_ci
-	
+
+IF MYSQL MAKE SURE DEFAULT TABLE IS INNODB
+
 Add a dsn called 'books'	
 
 Realease notes

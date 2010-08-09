@@ -8,10 +8,6 @@
 	
 	<cffunction name="teardown">
 		<cfscript>
-		var dm = variables.beanfactory.getBean('dataMgr');
-		dm.removeTable('book_author');		
-		dm.removeTable('book');
-		dm.removeTable('author');
 		</cfscript>
 	</cffunction>
 	
@@ -71,6 +67,7 @@
 				
 				<cfcatch type="any">
 					<cftransaction action="rollback"/>
+					<cfrethrow >
 				</cfcatch>			
 			
 			</cftry>
@@ -105,6 +102,7 @@
 			
 				<cfcatch type="any">
 					<cftransaction action="rollback"/>
+					<cfrethrow >
 				</cfcatch>			
 			
 			</cftry>
@@ -141,6 +139,7 @@
 	
 				<cfcatch type="any">
 					<cftransaction action="rollback"/>
+					<cfrethrow >
 				</cfcatch>			
 			
 			</cftry>
@@ -223,6 +222,7 @@
 
 				<cfcatch type="any">
 					<cftransaction action="rollback"/>
+					<cfrethrow >
 				</cfcatch>			
 			
 			</cftry>

@@ -74,22 +74,37 @@
 	<cffunction name="remove" output="false" returntype="void">
 		<cfargument name="key" type="string" required="false" default="">
 		<cfargument name="cachename" type="string" required="false">
-		<cfargument name="criteria" type="string" required="false" default="">
+		<cfargument name="criteria" type="any" required="false" default="">
 		
 		<cfset var store = getStore()>
+		<cfset var item = "">
+		<cfset var c = "">
 
 		<cflock name="#variables.LOCK_NAME#" type="readonly" timeout="5">
 			<!--- remove by key --->
 			<cfif len(arguments.key)>
 				<cfset structDelete(store,arguments.key)>
 			</cfif>
-			<!--- remove by criteria --->
-			<cfif len(arguments.criteria)>
-				<cfloop collection="#store#" item="item">
-					<cfif findnocase(arguments.criteria,item)>
-						<cfset structDelete(store,item)>
-					</cfif>
-				</cfloop>
+			<!--- 
+			Remove by criteria
+			Criteria may also be an array od strings
+			 --->
+			<cfif isArray(arguments.criteria) or arguments.criteria neq "">
+				<cfif isSimpleValue(criteria)>
+					<cfloop collection="#store#" item="item">
+						<cfif findnocase(arguments.criteria,item)>
+							<cfset structDelete(store,item)>
+						</cfif>
+					</cfloop>
+				<cfelse>
+					<cfloop collection="#store#" item="item">
+						<cfloop array="#criteria#" index="c">
+							<cfif findnocase(c,item)>
+								<cfset structDelete(store,item)>
+							</cfif>						
+						</cfloop>
+					</cfloop>						
+				</cfif>
 			</cfif>
 		</cflock>
 		
@@ -109,12 +124,16 @@
 		
 		<cfscript>
 			var store = getStore();
+			out = createObject('java','java.lang.System').out;
+			out.println('precheck store len : ' & structCount(store));
+
 			if(structKeyExists(store,arguments.key)){
 				var cache = variables.store[arguments.key];
 				if(dateCompare(now(),cache.expires) eq 1){
 					structDelete(store,arguments.key);
 				}
 			}
+			out.println('post check store len : ' & structCount(store));
 			
 		</cfscript>
 

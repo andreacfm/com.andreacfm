@@ -33,7 +33,7 @@
 	<cffunction name="remove" output="false" returntype="void">
 		<cfargument name="key" type="string" required="false" default="">
 		<cfargument name="cachename" type="string" required="false">
-		<cfargument name="criteria" type="string" required="false" default="">
+		<cfargument name="criteria" type="any" required="false" default="">
 		
 		
 	</cffunction>

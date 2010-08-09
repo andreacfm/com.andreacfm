@@ -1,6 +1,10 @@
 <cfcomponent 
 	implements="com.andreacfm.validate.IValidatable" 
-	extends="com.andreacfm.datax.Base">
+	extends="com.andreacfm.datax.Base"
+	accessors="true">
+		
+	<cfproperty name="dao" type="com.andreacfm.datax.Dao">
+	<cfproperty name="beanFactory" type="coldspring.beans.BeanFactory">		
 
 	<cfset variables.errors = createObject('java','java.util.ArrayList').init() />
 	<cfset variables.isAlwaysValid = false />
@@ -63,24 +67,6 @@
 				return this.update();
 			}
 		</cfscript>	
-	</cffunction>
-
-	<!---	dao	--->
-	<cffunction name="getdao" access="public" output="false" returntype="com.andreacfm.datax.Dao">
-		<cfreturn variables.dao/>
-	</cffunction>
-	<cffunction name="setdao" access="public" output="false" returntype="void">
-		<cfargument name="dao" type="com.andreacfm.datax.dao" required="true"/>
-		<cfset variables.dao = arguments.dao/>
-	</cffunction>
-
-	<!----	beanFactory	--->
-	<cffunction name="getBeanFactory" access="public" returntype="any" output="false" hint="Return the beanFactory instance">
-		<cfreturn variables.beanFactory />
-	</cffunction>		
-	<cffunction name="setBeanFactory" access="public" returntype="void" output="false" hint="Inject a beanFactory reference.">
-		<cfargument name="beanFactory" type="coldspring.beans.BeanFactory" required="true" />
-		<cfset variables.beanFactory = arguments.beanFactory />
 	</cffunction>
 
 	<!--- 
@@ -164,6 +150,5 @@
 		<cfargument name="validator" type="com.andreacfm.validate.Validator" required="true"/>
 		<cfset variables.validator = arguments.validator/>
 	</cffunction>
-
-
+	
 </cfcomponent>

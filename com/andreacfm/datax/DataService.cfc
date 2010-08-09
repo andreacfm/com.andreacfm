@@ -1,24 +1,20 @@
 <cfcomponent
  output="false"
- name="DatsService" 
- hint="Data Service Class"
- extends="com.andreacfm.datax.Base">
+ extends="com.andreacfm.datax.Base"
+ accessors="true">
+
+	<cfproperty name="gateway" type="com.andreacfm.datax.Gateway">
 
 	<!---	constructor	--->		
 	<cffunction name="init" description="initialize the object settings struct" output="false" returntype="com.andreacfm.datax.DataService">	
 		<cfargument name="gateway" required="true" type="com.andreacfm.datax.Gateway" />
 
-		<cfset variables.gateway = arguments.gateway />
+		<cfset setgateway(gateway) />
 
 	<cfreturn this/>	
 	</cffunction>
 
 	<!-----------------------------------------  PUBLIC   ---------------------------------------------------------------->
-
-	<!---	gateway	--->
-	<cffunction name="getgateway" access="public" output="false" returntype="com.andreacfm.datax.Gateway">
-		<cfreturn variables.gateway/>
-	</cffunction>
 
 	<!---	read	--->
 	<cffunction name="read"  access="public" returntype="any" output="false">
@@ -36,6 +32,7 @@
 		<cfargument name="cachename" required="false" type="string" default=""/>
 		<cfargument name="cachewithin" required="false" type="string" default=""/>
 		<cfargument name="timeidle" required="false" type="string" default=""/>
+		<cfargument name="key" required="false" type="any" default=""/>
 		
 		<!--- pagination --->
 		<cfargument name="page" required="false" type="numeric" default="0"/>
@@ -71,6 +68,7 @@
 		<cfargument name="cachename" required="false" type="string" default=""/>
 		<cfargument name="cachewithin" required="false" type="string" default=""/>
 		<cfargument name="timeidle" required="false" type="string" default=""/>
+		<cfargument name="key" required="false" type="any" default=""/>
 		
 		<!--- pagination --->
 		<cfargument name="page" required="false" type="numeric" default="0"/>
@@ -144,9 +142,14 @@
 	<cffunction name="getSql" access="private" output="false" returntype="com.andreacfm.datax.Sql">
 		
 		<cfset var sqlObj = ""/>
+		<cfset var gateway = getgateway()/>
+		<cfset var id = gateway.getId()>
 		
-		<!--- add table for caching key generation --->
+		
+		<!--- add table for caching key generation  and relatedtables for clearing cache--->
 		<cfset arguments.table = getGateway().getTable() />
+		<cfset arguments.relatedTables = gateway.getDbFactory().getBeanConfig(id).relatedtables>
+		
 		<!--- todo: add prefix with the related tables for cache flush --->
 		<cfset sqlObj = createObject("component","com.andreacfm.datax.Sql").init(argumentCollection=arguments) />
 

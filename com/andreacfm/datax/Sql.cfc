@@ -9,8 +9,10 @@
 	<cfproperty name="filters" type="array" />
 	<cfproperty name="advsql" type="struct" />
 	<cfproperty name="alive" type="boolean" />
+	<cfproperty name="cache" type="boolean" />
 	<cfproperty name="offset" type="numeric">
 	<cfproperty name="key" type="any">
+	<cfproperty name="relatedtables" type="string">
 	
 
 	<cfset variables.alive = true />	
@@ -34,11 +36,11 @@
 		<cfargument name="cache" required="false" type="boolean" default="false" />
 		<cfargument name="key" required="false" type="any" default=""/>
 		<cfargument name="offset" required="false" type="numeric" default="0" />
+		<cfargument name="relatedtables" required="false" type="string" default="" />
 		
-		<cfset variables.cache = arguments.cache />
-		
+		<cfset setcache(arguments.cache) />
+
 		<cfset setData(data) />
-		<!--- for caching keys --->
 		<cfset setMethod(method) />
 		<cfset setTable(table) />
 		<cfset setorderBy(orderBy) />
@@ -46,8 +48,11 @@
 		<cfset setfieldlist(fieldlist) />
 		<cfset setadvsql(advSql) />
 		<cfset setfilters(filters) />
-		<cfset setkey(key) />
 		<cfset setOffset(offset)>
+		<cfset setRelatedTables(relatedtables)>
+		
+		<!--- keys maust be the latest to be generated --->
+		<cfset setkey(key) />
 		
 		<cfreturn this/>
 	</cffunction>
@@ -86,8 +91,10 @@
 			<cfif len(arguments.key)>
 				<cfset variables.key = arguments.key>
 			<cfelse>
+				<cfset var rel = rereplacenocase(getRelatedTables(),',','_','All')>
+				<cfset rel = rereplacenocase(rel,"'",'','All')>				
 				<cfset d = [getmethod(),getTable(),getSortedData(d),getfilters(),getfieldlist(),getadvsql(),getorderBy(),getmaxRows(),getoffset()] />
-				<cfset variables.key = hash(serializejson(d)) />
+				<cfset variables.key = trim(rel & '_' & hash(serializejson(d))) />
 			</cfif>
 		</cfif>
 

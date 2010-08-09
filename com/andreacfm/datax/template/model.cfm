@@ -5,13 +5,15 @@
 	<cfloop from="1" to="#arraylen(composites)#" index="i">
 	<cfoutput>&lt;cfproperty name="#composites[i].listname#" type="string" /&gt;
 	&lt;cfproperty name="#composites[i].arrayname#" type="array" /&gt;</cfoutput></cfloop>
-
+	&lt;cfproperty name="relatedTables" type="array" /&gt;
+	
 	&lt;cfscript&gt;
 	<cfloop from="1" to="#arraylen(properties)#" index="i">
 	<cfoutput><cfif properties[i].default><cfif properties[i].type eq 'string'>variables['#properties[i].name#'] = "#properties[i].value#";<cfelse>variables['#properties[i].name#'] = #properties[i].value#;</cfif></cfif></cfoutput></cfloop>
 	<cfloop from="1" to="#arraylen(composites)#" index="i"><cfoutput>
 	variables['#composites[i].listname#'] = "";
 	variables['#composites[i].arrayname#'] = createObject('java','java.util.ArrayList').init();</cfoutput></cfloop>
+	variables['relatedTables'] = [<cfoutput>#relatedTables#</cfoutput>];
 
 	&lt;/cfscript&gt;
 	

@@ -1,8 +1,22 @@
 <cfcomponent
 	output="false"
 	name="Gateway"
-	hint="I am the system cfops gateway">
+	hint="I am the system cfops gateway"
+	accessors="true">
 
+	<cfproperty name="EventManager" type="com.andreacfm.cfem.EventManager">
+	<cfproperty name="CacheManager" type="com.andreacfm.caching.ICacheManager">
+	<cfproperty name="dataMgr" type="com.andreacfm.datax.dataMgr.dataMgr">
+	<cfproperty name="dbFactory" type="com.andreacfm.datax.dbfactory">
+	<cfproperty name="id" type="numeric">
+	<cfproperty name="table" type="string">
+	<cfproperty name="pk" type="string">
+	<cfproperty name="skipFields" type="string">
+	<cfproperty name="beanClass" type="string">
+	<cfproperty name="defaultOrderBy" type="string">
+		
+	<cfset _counter = 1 >	
+		
 	<!---	constructor	--->		
 	<cffunction name="init" description="initialize the object settings struct" output="false" returntype="com.andreacfm.datax.gateway">	
 		<cfargument name="dataSettingsBean" required="true" type="com.andreacfm.datax.ModelConfig" />
@@ -11,16 +25,16 @@
 		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />	
 		<cfargument name="CacheManager" required="true" type="com.andreacfm.caching.ICacheManager" />	
 			
-			<cfset variables.id = arguments.dataSettingsBean.getId() />
-			<cfset variables.table = arguments.dataSettingsBean.getTable() />
-			<cfset variables.pk = arguments.dataSettingsBean.getPk() />
-			<cfset variables.skipFields = arguments.dataSettingsBean.getskipFields() />
-			<cfset variables.beanClass = arguments.dataSettingsBean.getbeanClass() />
-			<cfset variables.defaultOrderBy = arguments.dataSettingsBean.getdefaultOrderBy() />
-			<cfset variables.dbFactory = arguments.dbFactory />
-			<cfset variables.dataMgr = arguments.dataMgr />
-			<cfset variables.EventManager = arguments.EventManager />
-			<cfset variables.CacheManager = arguments.CacheManager />				
+			<cfset setid(dataSettingsBean.getId()) />
+			<cfset settable(dataSettingsBean.getTable()) />
+			<cfset setpk(dataSettingsBean.getPk() )/>
+			<cfset setskipFields(dataSettingsBean.getskipFields())  />
+			<cfset setbeanClass(dataSettingsBean.getbeanClass())  />
+			<cfset setdefaultOrderBy(dataSettingsBean.getdefaultOrderBy())  />
+			<cfset setdbFactory(dbFactory) />
+			<cfset setdataMgr(dataMgr) />
+			<cfset setEventManager(EventManager) />
+			<cfset setCacheManager(CacheManager) />				
 			
 		<cfreturn this/>		
 	</cffunction>
@@ -35,7 +49,7 @@
 			
 			<cfset beforeRead( arguments.sql ) />
 			
-			<cfif arguments.sql.isCaching()>
+			<cfif arguments.sql.isAlive() and arguments.sql.isCaching()>
 				<cfset processPreCacheRequest(arguments.sql)>
 			</cfif>
 			
@@ -51,14 +65,16 @@
 				The bean so knows was cached or not and will eventually cache the composite as default 
 				implementation.
 				 --->
-				<cfset result = queryToDataBean( arguments.sql.getResult(), sql.isCaching() ) />				
+				<cfset result = queryToDataBean( arguments.sql.getResult(), sql.isCaching() ) />
+				<!--- push for listeners --->
+				<cfset arguments.sql.setResult(result)>				
 			</cfif>
 
 			<cfif arguments.sql.isCaching()>
 				<cfset processPostCacheRequest(arguments.sql)>
 			</cfif>
 			
-			<cfset afterRead( arguments.sql , result ) />
+			<cfset afterRead( arguments.sql) />
 				
 		<cfreturn result />
 	</cffunction>
@@ -68,8 +84,8 @@
 		<cfargument name="sql" required="true" type="com.andreacfm.datax.sql"/>
 			
 			<cfset beforeList(arguments.sql) />
-	
-			<cfif arguments.sql.isCaching()>
+
+			<cfif arguments.sql.isAlive() and arguments.sql.isCaching()>
 				<cfset processPreCacheRequest(arguments.sql)>
 			</cfif>
 			
@@ -99,56 +115,6 @@
 		</cfscript>
 	</cffunction>
 
-	<!---id--->
-	<cffunction name="getid" access="public" output="false" returntype="string">
-		<cfreturn variables.id/>
-	</cffunction>
-
-	<!---table--->
-	<cffunction name="gettable" access="public" output="false" returntype="string">
-		<cfreturn variables.table/>
-	</cffunction>
-
-	<!---pk--->
-	<cffunction name="getpk" access="public" output="false" returntype="string">
-		<cfreturn variables.pk/>
-	</cffunction>
-
-	<!---skipFields--->
-	<cffunction name="getskipFields" access="public" output="false" returntype="string">
-		<cfreturn variables.skipFields/>
-	</cffunction>
-
-	<!---beanClass--->
-	<cffunction name="getbeanClass" access="public" output="false" returntype="string">
-		<cfreturn variables.beanClass/>
-	</cffunction>
-
-	<!---deafultOrderBy--->
-	<cffunction name="getdefaultOrderBy" access="public" output="false" returntype="string">
-		<cfreturn variables.defaultOrderBy/>
-	</cffunction>
-
-	<!---dbFactory--->
-	<cffunction name="getdbFactory" access="public" output="false" returntype="com.andreacfm.datax.dbfactory">
-		<cfreturn variables.dbfactory/>
-	</cffunction>
-
-	<!---dataMgr instance--->
-	<cffunction name="getdataMgr" access="public" output="false" returntype="com.andreacfm.datax.dataMgr.dataMgr">
-		<cfreturn variables.dataMgr />
-	</cffunction>
-
-	<!--- Event Manager--->
-	<cffunction name="getEventManager" access="public" returntype="com.andreacfm.cfem.EventManager">
-		<cfreturn variables.EventManager/>
-	</cffunction>
-
-	<!--- Cache Manager--->
-	<cffunction name="getCacheManager" access="public" returntype="com.andreacfm.caching.ICacheManager">
-		<cfreturn variables.CacheManager/>
-	</cffunction>
-
 	<!-----------------------------------------  PRIVATE   ---------------------------------------------------------------->
 
 	<!--- 
@@ -168,8 +134,7 @@
 
 	<cffunction name="afterRead" returntype="void" access="private">
 		<cfargument name="sql" type="com.andreacfm.datax.Sql">
-		<cfargument name="result" type="array">
-		<cfset var data = { sql = sql , result = result} />
+		<cfset var data = { sql = sql } />
 		<cfset getEventManager().dispatchEvent(name = 'GatewayAfterRead',data = data, target = this) />
 	</cffunction>
 	
@@ -182,14 +147,17 @@
 	<!--- processPreCacheRequest--->
 	<cffunction name="processPreCacheRequest" returntype="void" output="false" access="private" hint="Sql is caching so look for a caches">
 		<cfargument name="sql" type="com.andreacfm.datax.Sql">
-		<cfscript>
+		<cfscript>	
 		var cm = getCacheManager();
 		var key = sql.getKey();
-		
+
 		if(cm.exists(key)){
 			arguments.sql.setResult(cm.get(key));
 			arguments.sql.kill();
 		}
+
+		out = createObject('java','java.lang.System').out;
+		out.println('pre store len : ' & structCount(cm.getStore()));
 		
 		</cfscript>
 	</cffunction>
@@ -206,8 +174,12 @@
 			str.value = sql.getResult(); 
 			cm.put(argumentCollection = str);
 		}
-		
+
+		out = createObject('java','java.lang.System').out;
+		out.println('post store len : ' & structCount(cm.getStore()));
+
 		</cfscript>
+
 	</cffunction>
 	
 	<!--- query database  --->	

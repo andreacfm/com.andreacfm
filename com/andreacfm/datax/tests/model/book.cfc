@@ -9,7 +9,8 @@
 	
 	<cfproperty name="authorList" type="string" />
 	<cfproperty name="authorArray" type="array" />
-
+	<cfproperty name="relatedTables" type="array" />
+	
 	<cfscript>
 	
 	variables['bookid'] = 0;
@@ -20,6 +21,7 @@
 	
 	variables['authorList'] = "";
 	variables['authorArray'] = createObject('java','java.util.ArrayList').init();
+	variables['relatedTables'] = ['book','author'];
 
 	</cfscript>
 	

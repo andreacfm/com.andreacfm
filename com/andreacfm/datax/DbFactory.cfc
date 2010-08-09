@@ -1,6 +1,12 @@
 <cfcomponent output="false" name="Data Bean Factory"
 	 hint="Data Bean Factory" 
-	 extends="com.andreacfm.datax.Base"> 
+	 extends="com.andreacfm.datax.Base"
+	 accessors="true"> 
+
+	<cfproperty name="EventManager" type="com.andreacfm.cfem.EventManager">
+	<cfproperty name="CacheManager" type="com.andreacfm.caching.ICacheManager">
+	<cfproperty name="dataMgr" type="com.andreacfm.datax.dataMgr.dataMgr">
+	<cfproperty name="beanFactory" type="coldspring.beans.BeanFactory">		
 	
 	<cfscript>
 	variables.beans = structNew();
@@ -9,8 +15,9 @@
 	<!---	constructor	 --->		
 	<cffunction name="init" description="initialize the object" output="false" returntype="com.andreacfm.datax.dbFactory">	
 		<cfargument name="config" required="false" type="array" default="#arraynew(1)#"/>
-		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr"/>
-		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />	
+		<cfargument name="dataMgr" required="true" type="com.andreacfm.datax.dataMgr.dataMgr" />
+		<cfargument name="EventManager" required="true" type="com.andreacfm.cfem.EventManager" />
+		<cfargument name="CacheManager" required="true" type="com.andreacfm.caching.ICacheManager" />		
 		<cfargument name="testMode" required="false" type="boolean" default="false"/>
 		<!--- Only for beans. Daos and validators are always autowired --->
 		<cfargument name="autowire" required="false" type="Boolean" default="false"/>
@@ -83,11 +90,6 @@
 		</cfscript>
 	</cffunction>
 
-	<!---   dataMgr   --->
-	<cffunction name="getdataMgr" access="public" output="false" returntype="com.andreacfm.datax.dataMgr.dataMgr">
-		<cfreturn variables.dataMgr/>
-	</cffunction>
-
 	<!---	makeBeans=	--->
 	<cffunction name="makeBeans" output="false" returntype="void">
 
@@ -127,6 +129,13 @@
 		</cfscript>		
 	</cffunction>
 
+	<!--- getBeanConfig --->
+	<cffunction name="getBeanConfig" returntype="Struct" output="false" access="public" hint="">
+		<cfargument name="id" required="false" type="string" />
+		<cfscript>
+		return variables.beans[id];
+		</cfscript>
+	</cffunction>
 	<!-----------------------------------------  PRIVATE   ---------------------------------------------------------------->
 
 	<!---writeBean--->
@@ -134,6 +143,7 @@
 		<cfargument name="beanName" required="true" type="string" />
 		
 		<cfset var beanConfig = variables['beans'][arguments.beanName].ModelConfig />
+		<cfset var relatedTables = variables['beans'][arguments.beanName].relatedtables />
 		<cfset var beanPath = "/" & replace(beanConfig.getbeanClass(),".","/","All") & ".cfc" />
 		<cfset var dmTable = getDataMgr().getTableData(beanConfig.getTable()) />
 		<cfset var dmConf = xmlParse(fileRead(expandPath("/com/andreacfm/datax/conf/dm-map.cfm"))) />
@@ -216,7 +226,10 @@
 		
 	</cffunction>
 
-	<!---	validateBean	--->
+	<!---	
+	validateBean
+	Check that anything is in order to process the bean.
+	--->
 	<cffunction name="validatebean" output="false" returntype="boolean" access="private">
 		<cfargument name="bean" type="struct" required="true" />
 		<cfscript>
@@ -310,7 +323,7 @@
 				if(isInstanceOf(config.dao,'com.andreacfm.datax.dao')){
 					dao = config.dao;
 				}else{
-					dao = createObject('component','#config.dao#').init(config.ModelConfig,getdatamgr(),getEventManager());
+					dao = createObject('component','#config.dao#').init(config.ModelConfig,getdatamgr(),getEventManager(),getCacheManager());
 				}
 				if(this.autowire){
 					getBeanFactory().getBean('beanInjector').autowire(dao);
@@ -354,41 +367,45 @@
 		<cfscript>
 		
 		var bean = arguments.str;
+		var table = bean.modelConfig.getTable();	
+		var dm = getdataMgr();	
+		var info = dm.getTableData(table)[table];
+		var relatedTables = "'#table#'";	
+		var id = bean.ModelConfig.getid();
 
-		variables['beans']['#bean.ModelConfig.getid()#'] = structNew();
+		variables['beans'][id] = structNew();
 		
-		variables['beans']['#bean.ModelConfig.getid()#']['ModelConfig'] = bean.ModelConfig;	
+		//modelconfig
+		variables['beans'][id]['ModelConfig'] = bean.ModelConfig;	
 		
+		//dao
 		if(structkeyExists(bean,'dao')){
 			dao = bean.dao;
 		}else{
 			dao = 'com.andreacfm.datax.Dao';				
 		}			
-		variables['beans']['#bean.ModelConfig.getid()#']['dao'] = dao;		
+		variables['beans'][id]['dao'] = dao;		
 
+		//validator
 		if(structkeyExists(bean,'validator')){
 			validator = bean.validator;
 		}else{
 			validator = 'com.andreacfm.validate.Validator';				
 		}			
-		variables['beans']['#bean.ModelConfig.getid()#']['validator'] = validator;		
+		variables['beans'][id]['validator'] = validator;		
 		
-				
+		//related tables for cache keys and cache flush		
+		for(var item in info){
+			if(structKeyExists(item,'relation')){
+				var rel = item.relation.table;
+				if(not listFindNocase(relatedTables,rel)){
+					relatedTables = listAppend(relatedTables,"'#rel#'");
+				}
+			}
+		}
+		variables['beans'][id]['relatedtables'] = relatedTables;
 		</cfscript>
-	</cffunction>
 
-	<!----	beanFactory	--->
-	<cffunction name="getBeanFactory" access="public" returntype="any" output="false" hint="Return the beanFactory instance">
-		<cfreturn variables.beanFactory />
-	</cffunction>		
-	<cffunction name="setBeanFactory" access="public" returntype="void" output="false" hint="Inject a beanFactory reference.">
-		<cfargument name="beanFactory" type="coldspring.beans.BeanFactory" required="true" />
-		<cfset variables.beanFactory = arguments.beanFactory />
 	</cffunction>
-
-	<!--- EventManager--->
-    <cffunction name="getEventManager" access="public" returntype="com.andreacfm.cfem.EventManager">
-    	<cfreturn variables.EventManager/>
-    </cffunction>
 	
 </cfcomponent>
