@@ -1,5 +1,5 @@
-<!--- 2.2.0.3 (Build 152) --->
-<!--- Last Updated: 2010-08-04 --->
+<!--- 2.5 Beta 1 Dev 2 (Build 162) --->
+<!--- Last Updated: 2010-08-13 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
 <cfcomponent extends="DataMgr" displayname="Data Manager for MS SQL Server" hint="I manage data interactions with the MS SQL Server database. I can be used to handle inserts/updates.">
 
@@ -13,6 +13,105 @@
 
 <cffunction name="getDatabaseDriver" access="public" returntype="string" output="no" hint="I return the string that can be found in the driver or JDBC URL for the database platform being used.">
 	<cfreturn "MSSQLServer">
+</cffunction>
+
+<cffunction name="getDatabaseVersion" access="public" returntype="string" output="no" hint="I return the numeric version number for the SQL Server database.">
+	
+	<cfset var qDatabaseVersion = 0>
+	
+	<cfif NOT StructKeyExists(variables,"DatabaseVersion")>
+		<cfset qDatabaseVersion = runSQL("SELECT SERVERPROPERTY('productversion') AS VersionNum")>
+		<cfset variables.DatabaseVersion = ListFirst(qDatabaseVersion.VersionNum,".")>
+	</cfif>
+	
+	<cfreturn variables.DatabaseVersion>
+</cffunction>
+
+<cffunction name="dbHasOffset" access="public" returntype="boolean" output="no" hint="I indicate if the current database natively supports offsets">
+	
+	<cfset var result = false>
+	
+	<cfif getDatabaseVersion() GTE 9>
+		<cfset result = true>
+	</cfif>
+
+	<cfreturn result>
+</cffunction>
+
+<cffunction name="getDBFieldList" access="public" returntype="string" output="no" hint="I return a list of fields in the database for the given table.">
+	<cfargument name="tablename" type="string" required="yes">
+	
+	<cfset var qFields = 0>
+	<cfset var aSQL = ArrayNew(1)>
+	<cfset var sql = "">
+	<cfset var sParam = StructNew()>
+	
+	<cfset sParam["value"] = arguments.tablename>
+	<cfset sParam["cfsqltype"] = "CF_SQL_VARCHAR">
+	
+	<cfsavecontent variable="sql"><cfoutput>
+	SELECT		cols.COLUMN_NAME AS Field
+	FROM		INFORMATION_SCHEMA.COLUMNS cols
+	WHERE		1 = 1
+	</cfoutput></cfsavecontent>
+	
+	<cfset ArrayAppend(aSQL,sql)>
+	<cfset ArrayAppend(aSQL,"AND		cols.table_name = ")>
+	<cfset ArrayAppend(aSQL,sParam)>
+	
+	<cfsavecontent variable="sql"><cfoutput>
+	ORDER BY	cols.table_name, Ordinal_Position
+	</cfoutput></cfsavecontent>
+	<cfset ArrayAppend(aSQL,sql)>
+
+	<cfset qFields = runSQLArray(aSQL)>
+	
+	<cfreturn ValueList(qFields.Field)>
+</cffunction>
+
+<cffunction name="getDBFieldLists" access="public" returntype="struct" output="no" hint="I return a list of fields in the database for the given table.">
+	<cfargument name="tables" type="string" required="no">
+	
+	<cfset var qFields = 0>
+	<cfset var aSQL = ArrayNew(1)>
+	<cfset var sql = "">
+	<cfset var sParam = StructNew()>
+	<cfset var sResult = StructNew()>
+	
+	<cfsavecontent variable="sql"><cfoutput>
+	SELECT		cols.table_name AS [table],
+				cols.COLUMN_NAME AS Field
+	FROM		INFORMATION_SCHEMA.COLUMNS cols
+	WHERE		1 = 1
+	</cfoutput></cfsavecontent>
+	
+	<cfset ArrayAppend(aSQL,sql)>
+	
+	<cfif StructKeyExists(arguments,"tables") AND Len(Trim(arguments.tables))>
+		<cfset sParam["value"] = arguments.tables>
+		<cfset sParam["cfsqltype"] = "CF_SQL_VARCHAR">
+		<cfset sParam["list"] = true>
+		
+		<cfset ArrayAppend(aSQL,"AND		cols.table_name IN (")>
+		<cfset ArrayAppend(aSQL,sParam)>
+		<cfset ArrayAppend(aSQL,")")>
+	</cfif>
+	
+	<cfsavecontent variable="sql"><cfoutput>
+	ORDER BY	cols.table_name, Ordinal_Position
+	</cfoutput></cfsavecontent>
+	<cfset ArrayAppend(aSQL,sql)>
+	
+	<cfset qFields = runSQLArray(aSQL)>
+	
+	<cfoutput query="qFields" group="table">
+		<cfset sResult[table] = "">
+		<cfoutput>
+			<cfset sResult[table] = ListAppend(sResult[table],field)> 
+		</cfoutput>
+	</cfoutput>
+
+	<cfreturn sResult>
 </cffunction>
 
 <cffunction name="sqlCreateColumn" access="public" returntype="any" output="false" hint="">
@@ -67,14 +166,40 @@
 	
 	<cfset var colname = "">
 	<cfset var result = "">
+	<cfset var aArgs = ArrayNew(1)>
 	
 	<cfloop index="colname" list="#arguments.fields#">
-		<cfif Len(result)>
-			<cfset result =  "#result# + '#arguments.delimeter#' + CAST(#colname# AS varchar(500))">
-		<cfelse>
-			<cfset result = "CAST(#colname# AS varchar(500))">
+		<cfif ArrayLen(aArgs)>
+			<cfset ArrayAppend(aArgs,arguments.delimeter)>
 		</cfif>
+		<cfset ArrayAppend(aArgs,"CAST(#colname# AS varchar(500))")>
 	</cfloop>
+	
+	<cfreturn concatSQL(aArgs)>
+</cffunction>
+
+<cffunction name="concatSQL" access="public" returntype="string" output="no">
+	
+	<cfset var result = "">
+	<cfset var str = "">
+	<cfset var ii = 0>
+	<cfset var args = arguments>
+	
+	<cfif ArrayLen(args)>
+		<cfif ArrayLen(args) EQ 1 AND isArray(args[1])>
+			<cfset args = args[1]> 
+		</cfif>
+		<cfloop index="ii" from="1" to="#ArrayLen(args)#" step="1">
+			<cfset str = args[ii]>
+			<cfif isSimpleValue(str)>
+				<cfif Len(result)>
+					<cfset result =  "#result# + #str#">
+				<cfelse>
+					<cfset result = str>
+				</cfif>
+			</cfif>
+		</cfloop>
+	</cfif>
 	
 	<cfreturn result>
 </cffunction>
@@ -132,6 +257,66 @@
 	<cfreturn ValueList(qTables.Table_Name)>
 </cffunction>
 
+<cffunction name="getDBTableData" access="public" returntype="struct" output="no">
+	<cfargument name="tablename" type="string" required="no">
+	
+	<cfset var qTables = 0>
+	<cfset var sTables = StructNew()>
+	<cfset var sField = 0>
+	<cfset var col = "">
+	
+	<cfsavecontent variable="sql"><cfoutput>
+	SELECT		cols.table_name AS [table],
+				cols.COLUMN_NAME AS Field,
+				cols.DATA_TYPE AS Type,
+				cols.CHARACTER_MAXIMUM_LENGTH AS MaxLength,
+				cols.IS_NULLABLE AS AllowNulls,
+				ColumnProperty( Object_ID( cols.table_name ),cols.COLUMN_NAME,'IsIdentity') AS IsIdentity,
+				cols.Column_Default as [Default],
+				cols.NUMERIC_PRECISION AS [Precision],
+				cols.NUMERIC_SCALE AS Scale,
+				CASE WHEN pks.Column_Name IS NOT NULL THEN 1 ELSE 0 END AS isPrimaryKey
+	FROM		INFORMATION_SCHEMA.COLUMNS cols
+	LEFT JOIN	(
+					SELECT		Column_Name,
+								INFORMATION_SCHEMA.TABLE_CONSTRAINTS.Table_Name
+					FROM		INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+					INNER JOIN	INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+						ON		INFORMATION_SCHEMA.TABLE_CONSTRAINTS.CONSTRAINT_NAME = INFORMATION_SCHEMA.KEY_COLUMN_USAGE.CONSTRAINT_NAME
+					WHERE		CONSTRAINT_TYPE = 'PRIMARY KEY'
+				) pks
+		ON		cols.table_name = pks.Table_Name
+			AND	cols.COLUMN_NAME = pks.Column_Name
+	WHERE		1 = 1
+		<cfif StructKeyExists(arguments,"tablename")>
+		AND		cols.table_name = '#arguments.tablename#'
+		</cfif>
+		<!---AND		cols.table_name = 'cmsPages'--->
+	ORDER BY	cols.table_name, Ordinal_Position
+	</cfoutput></cfsavecontent>
+	
+	<cfset qTables = runSQL(sql)>
+	
+	<cfoutput query="qTables" group="table">
+		<cfset sTables[table] = StructNew()>
+		<cfset sTables[table].aFields = ArrayNew(1)>
+		<cfset sTables[table].fieldlist = "">
+		<cfoutput>
+			<cfset sField = StructNew()>
+			<cfloop list="#ColumnList#" index="col">
+				<cfset sField[col] = qTables[col][CurrentRow]>
+			</cfloop>
+			<cfset ArrayAppend(sTables[table].aFields,sField)>
+			<cfset sTables[table].fieldlist = ListAppend(sTables[table].fieldlist,Field)>
+		</cfoutput>
+	</cfoutput>
+	
+	<cfreturn sTables>
+</cffunction>
+
+<cffunction name="getDBTableDataCache" access="public" returntype="struct" output="no">
+</cffunction>
+
 <cffunction name="getDBTableStruct" access="public" returntype="array" output="no" hint="I return the structure of the given table in the database.">
 	<cfargument name="tablename" type="string" required="yes">
 	
@@ -183,31 +368,24 @@
 		<cfset tmpStruct["CF_DataType"] = getCFDataType(Type)>
 		<cfif ListFindNoCase(PrimaryKeys,Field)>
 			<cfset tmpStruct["PrimaryKey"] = true>
-		<cfelse>
-			<cfset tmpStruct["PrimaryKey"] = false>
 		</cfif>
 		<cfif isBoolean(Trim(IsIdentity))>
 			<cfset tmpStruct["Increment"] = IsIdentity>
-		<cfelse>
-			<cfset tmpStruct["Increment"] = false>
 		</cfif>
 		<cfif Len(MaxLength) AND isNumeric(MaxLength) AND NOT tmpStruct["CF_DataType"] eq "CF_SQL_LONGVARCHAR">
 			<cfset tmpStruct["length"] = MaxLength>
 		</cfif>
 		<cfif isBoolean(Trim(AllowNulls))>
 			<cfset tmpStruct["AllowNulls"] = Trim(AllowNulls)>
-		<cfelse>
-			<cfset tmpStruct["AllowNulls"] = true>
 		</cfif>
 		<cfset tmpStruct["Precision"] = Precision>
 		<cfset tmpStruct["Scale"] = Scale>
 		<cfif Len(Default)>
 			<cfset tmpStruct["Default"] = Default>
 		</cfif>
-		<cfset tmpStruct["Special"] = "">
 		
 		<cfif Len(tmpStruct.CF_DataType)>
-			<cfset ArrayAppend(TableData,StructCopy(tmpStruct))>
+			<cfset ArrayAppend(TableData,adjustColumnArgs(tmpStruct))>
 		</cfif>
 	</cfoutput>
 	
@@ -319,6 +497,57 @@
 
 <cffunction name="getNowSQL" access="public" returntype="string" output="no" hint="I return the SQL for the current date/time.">
 	<cfreturn "getDate()">
+</cffunction>
+
+<cffunction name="getRecordsSQL" access="public" returntype="array" output="no" hint="I get the SQL to get a recordset based on the data given.">
+	<cfargument name="tablename" type="string" required="yes" hint="The table from which to return a record.">
+	<cfargument name="data" type="any" required="no" hint="A structure with the data for the desired record. Each key/value indicates a value for the field matching that key.">
+	<cfargument name="orderBy" type="string" default="">
+	<cfargument name="maxrows" type="numeric" default="0">
+	<cfargument name="fieldlist" type="string" default="" hint="A list of fields to return. If left blank, all fields will be returned.">
+	<cfargument name="function" type="string" default="" hint="A function to run against the results.">
+	<cfargument name="advsql" type="struct" hint="A structure of sqlarrays for each area of a query (SELECT,FROM,WHERE,ORDER BY).">
+	<cfargument name="filters" type="array">
+	<cfargument name="offset" type="numeric" default="0">
+	<cfargument name="FunctionAlias" type="string" required="false" hint="An alias for the column returned by a function (only if function argument is used).">
+	
+	<cfset var sArgs = 0>
+	<cfset var aSQL = ArrayNew(1)>
+	<cfset var temp = "">
+	
+	<cfif dbHasOffset() AND arguments.offset GT 0>
+		<cfset sArgs = StructCopy(arguments)>
+		<cfif StructKeyExists(sArgs,"advsql")>
+			<cfset sArgs.advsql = StructCopy(arguments.advsql)>
+		<cfelse>
+			<cfset sArgs.advsql = StructNew()>
+		</cfif>
+		<cfif NOT StructKeyExists(sArgs.advsql,"SELECT")>
+			<cfset sArgs.advsql.SELECT = ArrayNew(1)>
+		</cfif>
+		<cfif ( isSimpleValue(sArgs.advsql.SELECT) AND Len(Trim(sArgs.advsql.SELECT)) )>
+			<cfset sArgs.advsql.SELECT = sArgs.advsql.SELECT & ", ">
+			<cfset temp = sArgs.advsql.SELECT>
+			<cfset sArgs.advsql.SELECT = ArrayNew(1)>
+			<cfset ArrayAppend(sArgs.advsql.SELECT,temp)>
+			<cfset sArgs.advsql.SELECT = sArgs.advsql.SELECT & ", ">
+		<cfelseif ( isArray(sArgs.advsql.SELECT) AND ArrayLen(sArgs.advsql.SELECT) )>
+			<cfset ArrayAppend(sArgs.advsql.SELECT,", ")>
+		</cfif>
+		<cfset ArrayAppend(sArgs.advsql.SELECT,"ROW_NUMBER() OVER (ORDER BY ")>
+		<cfset ArrayAppend(sArgs.advsql.SELECT,getOrderBySQL(argumentCollection=arguments))>
+		<cfset ArrayAppend(sArgs.advsql.SELECT,") AS DataMgr_RowNum")>
+		
+		
+		<cfset ArrayAppend(aSQL,"SELECT * FROM (")>
+		<cfset ArrayAppend(aSQL,Super.getRecordsSQL(argumentCollection=sArgs))>
+		<cfset ArrayAppend(aSQL,") AS DataMgrDerivedTable")>
+		<cfset ArrayAppend(aSQL,"WHERE DataMgrDerivedTable.DataMgr_RowNum BETWEEN #arguments.offset+1# AND #arguments.maxrows+arguments.offset#")>
+	<cfelse>
+		<cfset aSQL = Super.getRecordsSQL(argumentCollection=arguments)>
+	</cfif>
+	
+	<cfreturn aSQL>
 </cffunction>
 
 <cffunction name="insertRecord2" access="public" returntype="string" output="no" hint="I insert a record into the given table with the provided data and do my best to return the primary key of the inserted record.">
