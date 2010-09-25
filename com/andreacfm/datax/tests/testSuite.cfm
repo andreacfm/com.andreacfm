@@ -1,8 +1,10 @@
 ﻿<cfparam name="URL.output" default="extjs">
 <cfscript>	
- testSuite = createObject("component","mxunit.framework.TestSuite").TestSuite();
- testSuite.addAll("com.andreacfm.datax.tests.test-datax");
- results = testSuite.run();
+testSuite = createObject("component","mxunit.framework.TestSuite").TestSuite();
+testSuite.addAll("com.andreacfm.datax.tests.test-datamgr");
+testSuite.addAll("com.andreacfm.datax.tests.test-datax");
+testSuite.addAll("com.andreacfm.datax.tests.test-caching");
+results = testSuite.run();
 </cfscript>
 <cfoutput>#results.getResultsOutput(URL.output)#</cfoutput>  
 <!--- <p><hr /></p>

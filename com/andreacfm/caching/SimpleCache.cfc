@@ -12,7 +12,7 @@
 		
 	<cffunction name="init" output="false" returntype="com.andreacfm.caching.ICacheManager">
 		<cfargument name="cachewithin" type="string" required="false" default="#createtimespan(0,0,0,0)#">
-		<cfargument name="timeidle" type="string" required="false" default="createtimespan(0,0,0,0)">		
+		<cfargument name="timeidle" type="string" required="false" default="#createtimespan(0,0,0,0)#">		
 		<cfargument name="cachename" type="string" required="false" default="">
 		
 		<cfscript>

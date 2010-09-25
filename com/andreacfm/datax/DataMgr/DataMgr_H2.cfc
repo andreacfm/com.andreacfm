@@ -2,7 +2,7 @@
 <!--- Last Updated: 2009-06-13 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
 <!--- Created by Salvatore Fusto 2010-03-02 --->
-<cfcomponent extends="DataMgr" displayname="Data Manager for MS SQL Server" hint="I manage data interactions with the MS SQL Server database. I can be used to handle inserts/updates.">
+<cfcomponent extends="DataMgr" displayname="Data Manager for H2" hint="I manage data interactions with the H2 database.">
 
 <cffunction name="getDatabase" access="public" returntype="string" output="no" hint="I return the database platform being used (Access,MS SQL,MySQL etc).">
 	<cfreturn "H2">

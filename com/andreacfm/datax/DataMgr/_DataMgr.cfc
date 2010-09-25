@@ -1,10 +1,10 @@
-<!--- 2.5 Beta 1 Dev 2 (Build 162) --->
-<!--- Last Updated: 2010-08-13 --->
+<!--- 2.5 Beta 1 (Build 163) --->
+<!--- Last Updated: 2010-08-30 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
 <!--- Information: sebtools.com --->
 <cfcomponent displayname="Data Manager" hint="I manage data interactions with the database. I can be used to handle inserts/updates.">
 
-<cfset variables.DataMgrVersion = "2.5 Alpha 2 Dev 1">
+<cfset variables.DataMgrVersion = "2.5 Beta 1">
 <cfset variables.DefaultDatasource = getDefaultDatasource()>
 
 <cffunction name="init" access="public" returntype="DataMgr" output="no" hint="I instantiate and return this object.">
@@ -51,6 +51,7 @@
 	<!--- Code to run only if not in a database adaptor already --->
 	<cfif ListLast(getMetaData(this).name,".") EQ "DataMgr">
 		<cfif NOT StructKeyExists(arguments,"database")>
+			<cfset addEngineEnhancements(true)>
 			<cfset arguments.database = getDatabase()>
 		</cfif>
 		
@@ -63,10 +64,38 @@
 			</cfif>
 		</cfif>
 	<cfelse>
+		<cfset addEngineEnhancements(false)>
 		<cfset me = this>
 	</cfif>
 	
 	<cfreturn me>
+</cffunction>
+
+<cffunction name="addEngineEnhancements" access="private" returntype="void" output="no">
+	<cfargument name="isLoadingDatabaseType" type="boolean" default="false">
+	
+	<cfset var oMixer = 0>
+	<cfset var key = "">
+	
+	<cfif ListFirst(variables.CFServer," ") EQ "ColdFusion" AND variables.CFVersion GTE 8>
+		<cfset oMixer = CreateObject("component","DataMgrEngine_cf8")>
+	<cfelseif variables.CFServer EQ "BlueDragon">
+		<cfset oMixer = CreateObject("component","DataMgrEngine_openbd")>
+	<cfelseif variables.CFServer EQ "Railo">
+		<cfset oMixer = CreateObject("component","DataMgrEngine_railo")>
+	</cfif>
+	
+	<cfif isObject(oMixer)>
+		<cfloop collection="#oMixer#" item="key">
+			<cfif key NEQ "getDatabase" OR arguments.isLoadingDatabaseType>
+				<cfset variables[key] = oMixer[key]>
+				<cfif StructKeyExists(This,key)>
+					<cfset This[key] = oMixer[key]>
+				</cfif>
+			</cfif>
+		</cfloop>
+	</cfif>
+	
 </cffunction>
 
 <cffunction name="setCacheDate" access="public" returntype="void" output="no">
@@ -157,7 +186,16 @@
 			<cfset runSQL(thisSQL)>
 		</cfif></cfloop>
 		<cfcatch><!--- If the ceation fails, throw an error with the sql code used to create the database. --->
-			<cfset throwDMError("SQL Error in Creation (#CFCATCH.Detail#). Verify Datasource (#chr(34)##variables.datasource##chr(34)#) is valid.","CreateFailed",CreateSQL,CFCATCH.Detail)>
+			<cfif NOT (
+					CFCATCH.Message CONTAINS "There is already an object named"
+				OR	(
+							StructKeyExists(CFCATCH,"Cause")
+						AND	StructKeyExists(CFCATCH.Cause,"Message")
+						AND	CFCATCH.Cause.Message CONTAINS "There is already an object named"
+					)
+			)>
+				<cfset throwDMError("SQL Error in Creation. Verify Datasource (#chr(34)##variables.datasource##chr(34)#) is valid.","CreateFailed",CreateSQL)>
+			</cfif>
 		</cfcatch>
 	</cftry>
 	
@@ -1901,9 +1939,14 @@
 	</cfif>
 	
 	<!--- set pkfield so that we can save relation data --->
-	<cfif ArrayLen(pkfields) AND Len(result)>
+	<cfif ArrayLen(pkfields)>
+		<cfif ArrayLen(pkfields) EQ 1 AND NOT Len(result)>
+			<cfset result = getPKFromData(arguments.tablename,in)>
+		</cfif>
 		<cfset in[pkfields[1].ColumnName] = result>
-		<cfset saveRelations(arguments.tablename,in,pkfields[1],result)>
+		<cfif Len(Trim(result))>
+			<cfset saveRelations(arguments.tablename,in,pkfields[1],result)>
+		</cfif>
 	</cfif>
 	
 	<!--- Log insert --->
@@ -2295,41 +2338,43 @@
 						if ( StructKeyExists(thisField,"CF_DataType") ) {
 							sFieldDef["CF_DataType"] = thisField["CF_DataType"];
 						}
-						//Set PrimaryKey (defaults to false)
-						if ( StructKeyExists(thisField,"PrimaryKey") AND isBoolean(thisField["PrimaryKey"]) AND thisField["PrimaryKey"] ) {
-							sFieldDef["PrimaryKey"] = true;
-						} else {
-							sFieldDef["PrimaryKey"] = false;
-						}
-						//Set AllowNulls (defaults to true)
-						if ( StructKeyExists(thisField,"AllowNulls") AND isBoolean(thisField["AllowNulls"]) AND NOT thisField["AllowNulls"] ) {
-							sFieldDef["AllowNulls"] = false;
-						} else {
-							sFieldDef["AllowNulls"] = true;
-						}
-						//Set length (if it exists and isnumeric)
-						if ( StructKeyExists(thisField,"Length") AND isNumeric(thisField["Length"]) AND NOT sFieldDef["CF_DataType"] EQ "CF_SQL_LONGVARCHAR" ) {
-							sFieldDef["Length"] = Val(thisField["Length"]);
-						} else {
-							sFieldDef["Length"] = 0;
-						}
-						//Set increment (if exists and true)
-						if ( StructKeyExists(thisField,"Increment") AND isBoolean(thisField["Increment"]) AND thisField["Increment"] ) {
-							sFieldDef["Increment"] = true;
-						} else {
-							sFieldDef["Increment"] = false;
-						}
-						//Set precision (if exists and true)
-						if ( StructKeyExists(thisField,"Precision") AND isNumeric(thisField["Precision"]) ) {
-							sFieldDef["Precision"] = Val(thisField["Precision"]);
-						} else {
-							sFieldDef["Precision"] = "";
-						}
-						//Set scale (if exists and true)
-						if ( StructKeyExists(thisField,"Scale") AND isNumeric(thisField["Scale"]) ) {
-							sFieldDef["Scale"] = Val(thisField["Scale"]);
-						} else {
-							sFieldDef["Scale"] = "";
+						if ( StructKeyExists(sFieldDef,"CF_DataType") ) {
+							//Set PrimaryKey (defaults to false)
+							if ( StructKeyExists(thisField,"PrimaryKey") AND isBoolean(thisField["PrimaryKey"]) AND thisField["PrimaryKey"] ) {
+								sFieldDef["PrimaryKey"] = true;
+							} else {
+								sFieldDef["PrimaryKey"] = false;
+							}
+							//Set AllowNulls (defaults to true)
+							if ( StructKeyExists(thisField,"AllowNulls") AND isBoolean(thisField["AllowNulls"]) AND NOT thisField["AllowNulls"] ) {
+								sFieldDef["AllowNulls"] = false;
+							} else {
+								sFieldDef["AllowNulls"] = true;
+							}
+							//Set length (if it exists and isnumeric)
+							if ( StructKeyExists(thisField,"Length") AND isNumeric(thisField["Length"]) AND NOT sFieldDef["CF_DataType"] EQ "CF_SQL_LONGVARCHAR" ) {
+								sFieldDef["Length"] = Val(thisField["Length"]);
+							} else {
+								sFieldDef["Length"] = 0;
+							}
+							//Set increment (if exists and true)
+							if ( StructKeyExists(thisField,"Increment") AND isBoolean(thisField["Increment"]) AND thisField["Increment"] ) {
+								sFieldDef["Increment"] = true;
+							} else {
+								sFieldDef["Increment"] = false;
+							}
+							//Set precision (if exists and true)
+							if ( StructKeyExists(thisField,"Precision") AND isNumeric(thisField["Precision"]) ) {
+								sFieldDef["Precision"] = Val(thisField["Precision"]);
+							} else {
+								sFieldDef["Precision"] = "";
+							}
+							//Set scale (if exists and true)
+							if ( StructKeyExists(thisField,"Scale") AND isNumeric(thisField["Scale"]) ) {
+								sFieldDef["Scale"] = Val(thisField["Scale"]);
+							} else {
+								sFieldDef["Scale"] = "";
+							}
 						}
 						//Set default (if exists)
 						if ( StructKeyExists(thisField,"Default") AND Len(thisField["Default"]) ) {
@@ -2582,16 +2627,10 @@
 	<cfset var thisSQL = "">
 	
 	<cfif Len(arguments.sql)>
-		<cfif variables.CFServer EQ "Railo">
-			<cfinclude template="DataMgr_railo_query.cfm">
-		<cfelseif variables.CFServer EQ "BlueDragon">
-			<cfinclude template="DataMgr_openbd_query.cfm">
+		<cfif StructKeyExists(variables,"username") AND StructKeyExists(variables,"password")>
+			<cfquery name="qQuery" datasource="#variables.datasource#" username="#variables.username#" password="#variables.password#">#Trim(DMPreserveSingleQuotes(arguments.sql))#</cfquery>
 		<cfelse>
-			<cfif StructKeyExists(variables,"username") AND StructKeyExists(variables,"password")>
-				<cfquery name="qQuery" datasource="#variables.datasource#" username="#variables.username#" password="#variables.password#">#Trim(DMPreserveSingleQuotes(arguments.sql))#</cfquery>
-			<cfelse>
-				<cfquery name="qQuery" datasource="#variables.datasource#">#Trim(DMPreserveSingleQuotes(arguments.sql))#</cfquery>
-			</cfif>
+			<cfquery name="qQuery" datasource="#variables.datasource#">#Trim(DMPreserveSingleQuotes(arguments.sql))#</cfquery>
 		</cfif>
 	</cfif>
 	
@@ -2611,24 +2650,10 @@
 	
 	<cftry>
 		<cfif ArrayLen(aSQL)>
-			<cfif variables.CFServer EQ "Railo">
-				<cfinclude template="DataMgr_railo_query.cfm">
-			<cfelseif variables.CFServer EQ "BlueDragon">
-				<cfinclude template="DataMgr_openbd_query.cfm">
+			<cfif StructKeyExists(variables,"username") AND StructKeyExists(variables,"password")>
+				<cfquery name="qQuery" datasource="#variables.datasource#" username="#variables.username#" password="#variables.password#"><cfloop index="ii" from="1" to="#ArrayLen(aSQL)#" step="1"><cfif IsSimpleValue(aSQL[ii])><cfset temp = aSQL[ii]>#Trim(DMPreserveSingleQuotes(temp))#<cfelseif IsStruct(aSQL[ii])><cfset aSQL[ii] = queryparam(argumentCollection=aSQL[ii])><cfswitch expression="#aSQL[ii].cfsqltype#"><cfcase value="CF_SQL_BIT">#getBooleanSqlValue(aSQL[ii].value)#</cfcase><cfcase value="CF_SQL_DATE,CF_SQL_DATETIME">#CreateODBCDateTime(aSQL[ii].value)#</cfcase><cfdefaultcase><!--- <cfif ListFindNoCase(variables.dectypes,aSQL[ii].cfsqltype)>#Val(aSQL[ii].value)#<cfelse> ---><cfqueryparam value="#aSQL[ii].value#" cfsqltype="#aSQL[ii].cfsqltype#" maxlength="#aSQL[ii].maxlength#" scale="#aSQL[ii].scale#" null="#aSQL[ii].null#" list="#aSQL[ii].list#" separator="#aSQL[ii].separator#"><!--- </cfif> ---></cfdefaultcase></cfswitch></cfif> </cfloop></cfquery>
 			<cfelse>
-				<cfif variables.CFVersion GTE 8 AND variables.SmartCache>
-					<cfif StructKeyExists(variables,"username") AND StructKeyExists(variables,"password")>
-						<cfquery name="qQuery" datasource="#variables.datasource#" cachedafter="#variables.CacheDate#" username="#variables.username#" password="#variables.password#"><cfloop index="ii" from="1" to="#ArrayLen(aSQL)#" step="1"><cfif IsSimpleValue(aSQL[ii])><cfset temp = aSQL[ii]>#Trim(DMPreserveSingleQuotes(temp))#<cfelseif IsStruct(aSQL[ii])><cfset aSQL[ii] = queryparam(argumentCollection=aSQL[ii])><cfswitch expression="#aSQL[ii].cfsqltype#"><cfcase value="CF_SQL_BIT">#getBooleanSqlValue(aSQL[ii].value)#</cfcase><cfcase value="CF_SQL_DATE,CF_SQL_DATETIME">#CreateODBCDateTime(aSQL[ii].value)#</cfcase><cfdefaultcase><!--- <cfif ListFindNoCase(variables.dectypes,aSQL[ii].cfsqltype)>#Val(aSQL[ii].value)#<cfelse> ---><cfqueryparam value="#aSQL[ii].value#" cfsqltype="#aSQL[ii].cfsqltype#" maxlength="#aSQL[ii].maxlength#" scale="#aSQL[ii].scale#" null="#aSQL[ii].null#" list="#aSQL[ii].list#" separator="#aSQL[ii].separator#"><!--- </cfif> ---></cfdefaultcase></cfswitch></cfif> </cfloop></cfquery>
-					<cfelse>
-						<cfquery name="qQuery" datasource="#variables.datasource#" cachedafter="#variables.CacheDate#"><cfloop index="ii" from="1" to="#ArrayLen(aSQL)#" step="1"><cfif IsSimpleValue(aSQL[ii])><cfset temp = aSQL[ii]>#Trim(DMPreserveSingleQuotes(temp))#<cfelseif IsStruct(aSQL[ii])><cfset aSQL[ii] = queryparam(argumentCollection=aSQL[ii])><cfswitch expression="#aSQL[ii].cfsqltype#"><cfcase value="CF_SQL_BIT">#getBooleanSqlValue(aSQL[ii].value)#</cfcase><cfcase value="CF_SQL_DATE,CF_SQL_DATETIME">#CreateODBCDateTime(aSQL[ii].value)#</cfcase><cfdefaultcase><!--- <cfif ListFindNoCase(variables.dectypes,aSQL[ii].cfsqltype)>#Val(aSQL[ii].value)#<cfelse> ---><cfqueryparam value="#aSQL[ii].value#" cfsqltype="#aSQL[ii].cfsqltype#" maxlength="#aSQL[ii].maxlength#" scale="#aSQL[ii].scale#" null="#aSQL[ii].null#" list="#aSQL[ii].list#" separator="#aSQL[ii].separator#"><!--- </cfif> ---></cfdefaultcase></cfswitch></cfif> </cfloop></cfquery>
-					</cfif>
-				<cfelse>
-					<cfif StructKeyExists(variables,"username") AND StructKeyExists(variables,"password")>
-						<cfquery name="qQuery" datasource="#variables.datasource#" username="#variables.username#" password="#variables.password#"><cfloop index="ii" from="1" to="#ArrayLen(aSQL)#" step="1"><cfif IsSimpleValue(aSQL[ii])><cfset temp = aSQL[ii]>#Trim(DMPreserveSingleQuotes(temp))#<cfelseif IsStruct(aSQL[ii])><cfset aSQL[ii] = queryparam(argumentCollection=aSQL[ii])><cfswitch expression="#aSQL[ii].cfsqltype#"><cfcase value="CF_SQL_BIT">#getBooleanSqlValue(aSQL[ii].value)#</cfcase><cfcase value="CF_SQL_DATE,CF_SQL_DATETIME">#CreateODBCDateTime(aSQL[ii].value)#</cfcase><cfdefaultcase><!--- <cfif ListFindNoCase(variables.dectypes,aSQL[ii].cfsqltype)>#Val(aSQL[ii].value)#<cfelse> ---><cfqueryparam value="#aSQL[ii].value#" cfsqltype="#aSQL[ii].cfsqltype#" maxlength="#aSQL[ii].maxlength#" scale="#aSQL[ii].scale#" null="#aSQL[ii].null#" list="#aSQL[ii].list#" separator="#aSQL[ii].separator#"><!--- </cfif> ---></cfdefaultcase></cfswitch></cfif> </cfloop></cfquery>
-					<cfelse>
-						<cfquery name="qQuery" datasource="#variables.datasource#"><cfloop index="ii" from="1" to="#ArrayLen(aSQL)#" step="1"><cfif IsSimpleValue(aSQL[ii])><cfset temp = aSQL[ii]>#Trim(DMPreserveSingleQuotes(temp))#<cfelseif IsStruct(aSQL[ii])><cfset aSQL[ii] = queryparam(argumentCollection=aSQL[ii])><cfswitch expression="#aSQL[ii].cfsqltype#"><cfcase value="CF_SQL_BIT">#getBooleanSqlValue(aSQL[ii].value)#</cfcase><cfcase value="CF_SQL_DATE,CF_SQL_DATETIME">#CreateODBCDateTime(aSQL[ii].value)#</cfcase><cfdefaultcase><!--- <cfif ListFindNoCase(variables.dectypes,aSQL[ii].cfsqltype)>#Val(aSQL[ii].value)#<cfelse> ---><cfqueryparam value="#aSQL[ii].value#" cfsqltype="#aSQL[ii].cfsqltype#" maxlength="#aSQL[ii].maxlength#" scale="#aSQL[ii].scale#" null="#aSQL[ii].null#" list="#aSQL[ii].list#" separator="#aSQL[ii].separator#"><!--- </cfif> ---></cfdefaultcase></cfswitch></cfif> </cfloop></cfquery>
-					</cfif>
-				</cfif>
+				<cfquery name="qQuery" datasource="#variables.datasource#"><cfloop index="ii" from="1" to="#ArrayLen(aSQL)#" step="1"><cfif IsSimpleValue(aSQL[ii])><cfset temp = aSQL[ii]>#Trim(DMPreserveSingleQuotes(temp))#<cfelseif IsStruct(aSQL[ii])><cfset aSQL[ii] = queryparam(argumentCollection=aSQL[ii])><cfswitch expression="#aSQL[ii].cfsqltype#"><cfcase value="CF_SQL_BIT">#getBooleanSqlValue(aSQL[ii].value)#</cfcase><cfcase value="CF_SQL_DATE,CF_SQL_DATETIME">#CreateODBCDateTime(aSQL[ii].value)#</cfcase><cfdefaultcase><!--- <cfif ListFindNoCase(variables.dectypes,aSQL[ii].cfsqltype)>#Val(aSQL[ii].value)#<cfelse> ---><cfqueryparam value="#aSQL[ii].value#" cfsqltype="#aSQL[ii].cfsqltype#" maxlength="#aSQL[ii].maxlength#" scale="#aSQL[ii].scale#" null="#aSQL[ii].null#" list="#aSQL[ii].list#" separator="#aSQL[ii].separator#"><!--- </cfif> ---></cfdefaultcase></cfswitch></cfif> </cfloop></cfquery>
 			</cfif>
 		</cfif>
 	<cfcatch>
@@ -4597,7 +4622,14 @@
 			for ( i=1; i LTE ArrayLen(arrData); i=i+1 ) {
 			//for ( i=1; i LTE ListLen(tables); i=i+1 ) {
 				//table = ListGetAt(tables,i);
-				table = arrData[i].XmlAttributes["table"];
+				if ( StructKeyExists(arrData[i].XmlAttributes,"table") ) {
+					table = arrData[i].XmlAttributes["table"];
+				} else if ( StructKeyExists(arrData[i].XmlParent.XmlAttributes,"name") ) {
+					table = arrData[i].XmlParent.XmlAttributes["name"];
+				} else {
+					da(arrData[i]);				
+				}
+				
 				checkFields = "";
 				onexists = "skip";
 				if ( StructKeyExists(arrData[i].XmlAttributes,"checkFields") ) {
@@ -5155,4 +5187,5 @@ function queryRowToStruct(query){
 	<cfreturn result>
 </cffunction>
 
+<cffunction name="da" access="private"><cfdump var="#arguments#"><cfabort></cffunction>
 </cfcomponent>

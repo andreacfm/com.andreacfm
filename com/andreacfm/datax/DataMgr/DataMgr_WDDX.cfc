@@ -1,5 +1,5 @@
-<!--- 2.5 Beta 1 Dev 2 (Build 162) --->
-<!--- Last Updated: 2010-08-13 --->
+<!--- 2.5 Beta 1 (Build 163) --->
+<!--- Last Updated: 2010-08-30 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
 <!---
 TODO:
@@ -8,7 +8,7 @@ saveSortOrder()
 Relation Fields
 Day subtraction error
 --->
-<cfcomponent extends="DataMgr" displayname="Data Manager for WDDX" hint="I manage data interactions with WDDX. I can be used to handle inserts/updates.">
+<cfcomponent extends="DataMgr" displayname="Data Manager for WDDX" hint="I manage data interactions with WDDX.">
 
 <cfset variables.WDDX_Data = StructNew()>
 <cfset variables.tabledata = StructNew()>

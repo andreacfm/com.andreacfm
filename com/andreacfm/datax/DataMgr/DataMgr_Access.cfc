@@ -1,7 +1,7 @@
-<!--- 2.5 Beta 1 Dev 2 (Build 162) --->
-<!--- Last Updated: 2010-08-13 --->
+<!--- 2.5 Beta 1 (Build 163) --->
+<!--- Last Updated: 2010-08-30 --->
 <!--- Created by Steve Bryant 2004-12-08 --->
-<cfcomponent extends="DataMgr" displayname="Data Manager for MS Access" hint="I manage data interactions with the MS Access database. I can be used to handle inserts/updates.">
+<cfcomponent extends="DataMgr" displayname="Data Manager for MS Access" hint="I manage data interactions with the MS Access database.">
 
 <cffunction name="getDatabase" access="public" returntype="string" output="no" hint="I return the database platform being used (Access,MS SQL,MySQL etc).">
 	<cfreturn "Access">

@@ -8,7 +8,7 @@
 	<cfproperty name="CacheManager" type="com.andreacfm.caching.ICacheManager">
 	<cfproperty name="dataMgr" type="com.andreacfm.datax.dataMgr.dataMgr">
 	<cfproperty name="dbFactory" type="com.andreacfm.datax.dbfactory">
-	<cfproperty name="id" type="numeric">
+	<cfproperty name="id" type="string">
 	<cfproperty name="table" type="string">
 	<cfproperty name="pk" type="string">
 	<cfproperty name="skipFields" type="string">

@@ -3,7 +3,10 @@
 	<cffunction name="setUp">
 		<cfset variables.beanfactory = CreateObject('component','com.andreacfm.util.beanutils.DynamicXmlBeanFactory').init()/>
 		<cfset variables.beanfactory.loadBeansFromDynamicXmlFile('/com/andreacfm/datax/tests/config/coldspring.xml.cfm') />
-		<cfset variables.beanfactory.getBean('EventManager').getLogger().setOut('console')>		
+		<cfset variables.beanfactory.getBean('EventManager').getLogger().setOut('console')>
+		<cfset var dm = variables.beanfactory.getbean('dataMgr')>
+		<cfset dm.runsql('Delete from book')>
+		<cfset dm.runsql('Delete from author')>				
 	</cffunction>
 
 	<cffunction name="tearDown">
