@@ -6,6 +6,7 @@
 	<cfproperty name="createon" type="date" />
 	<cfproperty name="updateon" type="date" />
 	<cfproperty name="sort" type="numeric" />
+	<cfproperty name="uuid" type="string" />
 	
 	<cfproperty name="bookList" type="string" />
 	<cfproperty name="bookArray" type="array" />
@@ -18,6 +19,7 @@
 	variables['createon'] = now();
 	variables['updateon'] = now();
 	variables['sort'] = 0;
+	variables['uuid'] = "";
 	
 	variables['bookList'] = "";
 	variables['bookArray'] = createObject('java','java.util.ArrayList').init();

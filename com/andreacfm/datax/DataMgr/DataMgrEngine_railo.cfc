@@ -4,7 +4,7 @@
 	
 	<cfset sRailoQuery["name"] = "qQuery">
 	<cfset sRailoQuery["datasource"] = variables.datasource>
-	<cfset sRailoQuery["psq"] = "false">
+	<cfset sRailoQuery["psq"] = true>
 	<cfif StructKeyExists(variables,"username") AND StructKeyExists(variables,"password")>
 		<cfset sRailoQuery["username"] = variables.username>
 		<cfset sRailoQuery["password"] = variables.password>
