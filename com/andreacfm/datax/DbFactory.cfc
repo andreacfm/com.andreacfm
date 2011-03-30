@@ -106,7 +106,7 @@
 			catch(Any e){
 				throw('Error making beans. #e.message#','com.andreacfm.datax.dbFactory.beanMakerExeption','method makeBeans');
 			}
-		
+
 		</cfscript>		
 	</cffunction>
 
@@ -184,6 +184,15 @@
 					</cfif>
 					<!--- add to composites --->			
 					<cfset arrayAppend(composites,property) />
+			    <cfelseif relation.type eq 'custom'>
+					<cfset property = structNew()/>
+					<cfset property.default = false />
+					<cfset property.name = fields[i].columnName />
+					<cfset temp = xmlSearch(dmConf,"//data-mapping/data-type[@name='#fields[i].relation.cf_dataType#']") />
+					<cfset property.type = temp[1].XmlText/>
+					<cfset temp = xmlSearch(dmConf,"//data-values/cf-data-type[@name='#property.type#']") />
+					<cfset property.value = temp[1].XmlText/>
+					<cfset arrayAppend(properties,property) />
 				<cfelse>
 					<cfset property = structNew()/>
 					<cfset property.default = false />
@@ -394,9 +403,9 @@
 		}			
 		variables['beans'][id]['validator'] = validator;		
 		
-		//related tables for cache keys and cache flush		
+		//related tables for cache keys and cache flush. Custom relation does not have table attribute
 		for(var item in info){
-			if(structKeyExists(item,'relation')){
+			if(structKeyExists(item,'relation') and structKeyExists(item,'table')){
 				var rel = item.relation.table;
 				if(not listFindNocase(relatedTables,rel)){
 					relatedTables = listAppend(relatedTables,"'#rel#'");
