@@ -197,7 +197,7 @@
 					<cfset property = structNew()/>
 					<cfset property.default = false />
 					<cfset property.name = fields[i].columnName />
-					<cfset temp = xmlSearch(dmConf,"//data-mapping/data-type[@name='#fields[i].cf_dataType#']") />
+					<cfset temp = xmlSearch(dmConf,"//data-mapping/data-type[@name='#fields[i].relation.cf_dataType#']") />
 					<cfset property.type = temp[1].XmlText/>	
 					<cfset temp = xmlSearch(dmConf,"//data-values/cf-data-type[@name='#property.type#']") />
 					<cfset property.value = temp[1].XmlText/>
